@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Aluno - Universidade UniFictícia</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <div class="header-brand">
+                <img src="UniLogo3.png" alt="Logo Universidade UniFictícia" class="header-logo">
+                <div>
+                    <h1>Universidade UniFictícia</h1>
+                    <p>Portal de Solicitações e Atendimento ao Aluno</p>
+                </div>
+            </div>
+            <nav id="authNav" class="nav-dropdown">
+                <button class="dropdown-toggle">Entrar ▼</button>
+                <ul class="dropdown-menu">
+                    <li><button type="button" id="btnGoToLogin" class="dropdown-item">Funcionários</button></li>
+                    <li><button type="button" id="btnGoToRegister" class="dropdown-item">Alunos</button></li>
+                </ul>
+            </nav>
+
+            <nav id="profileNav" class="nav-dropdown profile-nav" hidden>
+                <button type="button" id="profileToggle" class="profile-toggle" aria-label="Abrir menu do perfil" title="Perfil">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
+                    </svg>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><button type="button" id="logoutBtn" class="dropdown-item">Sair</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="landingView">
+        <div class="container" style="margin-bottom: 0;">
+            <h2>Notícias</h2>
+        </div>
+        <div class="slider">
+            <div class="slider-track">
+                <div class="slide">
+                    <img src="imgs/Presentation.png" alt="Apresentação de Projetos">
+                    <div class="slide-caption">
+                        <span class="slide-tag">Acadêmico</span>
+                        <h3>Apresentação de Projetos — Final do Semestre</h3>
+                        <p>Alunos apresentaram seus projetos de conclusão de curso para uma banca de professores e convidados.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="imgs/Chemistry.png" alt="Laboratório de Química">
+                    <div class="slide-caption">
+                        <span class="slide-tag">Ciência</span>
+                        <h3>Experimentos no Laboratório de Química</h3>
+                        <p>Estudantes realizaram práticas experimentais supervisionadas no laboratório de química da universidade.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="imgs/Reading.png" alt="Clube de Leitura">
+                    <div class="slide-caption">
+                        <span class="slide-tag">Cultura</span>
+                        <h3>Clube de Leitura — Semana do Conhecimento</h3>
+                        <p>A iniciativa reuniu alunos de diferentes cursos para debater obras literárias e científicas.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="slider-btn slider-prev" aria-label="Anterior">&#8249;</button>
+            <button class="slider-btn slider-next" aria-label="Próximo">&#8250;</button>
+            <div class="slider-dots">
+                <button class="slider-dot active" data-index="0" aria-label="Slide 1"></button>
+                <button class="slider-dot" data-index="1" aria-label="Slide 2"></button>
+                <button class="slider-dot" data-index="2" aria-label="Slide 3"></button>
+            </div>
+        </div>
+    </main>
+
+    <main class="container" id="loginView" hidden>
+        <section class="auth-box">
+            <h2>Login no Portal</h2>
+            <form id="loginForm" autocomplete="off">
+                <label for="loginUsername">Nome</label>
+                <input id="loginUsername" required autocomplete="off">
+                <label for="loginPassword">Senha</label>
+                <input id="loginPassword" type="password" required autocomplete="new-password">
+            </form>
+
+            <div class="button-group">
+                <button id="backToLoginLanding" class="btn btn-secondary small" onclick="showLanding()">Voltar</button>
+                <button form="loginForm" type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+        </section>
+    </main>
+
+    <main class="container" id="registerView" hidden>
+        <section class="auth-box">
+            <h2>Cadastro de Aluno</h2>
+            <form id="registerForm">
+                <label for="registerName">Nome</label>
+                <input id="registerName" required>
+                <label for="registerPassword">Senha</label>
+                <input id="registerPassword" type="password" required>
+            </form>
+
+            <div class="button-group">
+                <button id="backToRegisterLanding" class="btn btn-secondary small" onclick="showLanding()">Voltar</button>
+                <button form="registerForm" type="submit" class="btn btn-primary">Cadastrar</button>
+            </div>
+        </section>
+    </main>
+
+    <main id="appView" hidden>
+        <div class="app-layout">
+            <aside class="sidebar">
+                <button type="button" class="sidebar-item active" data-view="appView" data-tab="documentos">📄 Documentos</button>
+                <button type="button" class="sidebar-item" data-view="appView" data-tab="solicitacoes">📋 Solicitações</button>
+                <button type="button" class="sidebar-item" data-view="appView" data-tab="mensagens">💬 Mensagens</button>
+            </aside>
+
+            <div class="app-content">
+                <section id="appTab-documentos" class="tab-panel">
+                    <div class="tab-header">
+                        <h2>Documentos</h2>
+                    </div>
+                    <table>
+                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="listaDocumentos"></tbody>
+                    </table>
+                </section>
+
+                <section id="appTab-solicitacoes" class="tab-panel" hidden>
+                    <div class="tab-header">
+                        <h2>Minhas Solicitações</h2>
+                        <button type="button" id="btnSolicitarDocumento" class="btn btn-primary small">📄 Solicitar</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="listaSolicitacoes"></tbody>
+                    </table>
+                </section>
+
+                <section id="appTab-mensagens" class="tab-panel" hidden>
+                    <div class="tab-header">
+                        <h2>Mensagens</h2>
+                        <div class="tab-header-actions">
+                            <button id="btnDuvidas" class="btn btn-secondary small">💬 Dúvidas, Sugestões ou Reclamações</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="listaMensagens"></tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <main id="adminView" hidden>
+        <div class="app-layout">
+            <aside class="sidebar">
+                <button type="button" class="sidebar-item active" data-view="adminView" data-tab="solicitacoes">📋 Solicitações de alunos</button>
+                <button type="button" class="sidebar-item" data-view="adminView" data-tab="mensagens">💬 Mensagens de alunos</button>
+            </aside>
+
+            <div class="app-content">
+                <section id="adminTab-solicitacoes" class="tab-panel">
+                    <div class="tab-header">
+                        <h2>Solicitações dos Alunos</h2>
+                        <select id="filtroStatusSolicitacoes" class="filter-select" onchange="renderRequests('listaSolicitacoesAdmin','Documento',this.value)">
+                            <option value="Pendente">Pendentes</option>
+                            <option value="Concluído">Concluídos</option>
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <table>
+                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="listaSolicitacoesAdmin"></tbody>
+                    </table>
+                </section>
+
+                <section id="adminTab-mensagens" class="tab-panel" hidden>
+                    <div class="tab-header">
+                        <h2>Mensagens dos Alunos</h2>
+                        <select id="filtroStatusMensagens" class="filter-select" onchange="renderRequests('listaMensagensAdmin','Mensagem',this.value)">
+                            <option value="Pendente">Pendentes</option>
+                            <option value="Concluído">Concluídos</option>
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <table>
+                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="listaMensagensAdmin"></tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Seleção de Conta - Funcionários -->
+    <div id="modalFuncionarios" class="modal">
+        <div class="modal-content account-picker">
+            <div class="account-picker-header">
+                <p class="account-picker-org">Universidade UniFictícia</p>
+                <h2 class="account-picker-title">Escolha uma conta</h2>
+                <p class="account-picker-sub">Funcionários</p>
+            </div>
+            <div id="listaFuncionarios" class="account-list"></div>
+            <div class="account-picker-footer">
+                <button type="button" class="account-picker-cancel" onclick="closeModal('modalFuncionarios')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Seleção de Conta - Alunos -->
+    <div id="modalAlunos" class="modal">
+        <div class="modal-content account-picker">
+            <div class="account-picker-header">
+                <p class="account-picker-org">Universidade UniFictícia</p>
+                <h2 class="account-picker-title">Escolha uma conta</h2>
+                <p class="account-picker-sub">Alunos</p>
+            </div>
+            <div id="listaAlunos" class="account-list"></div>
+            <div class="account-picker-footer">
+                <button type="button" class="account-picker-new-btn" onclick="closeModal('modalAlunos'); showRegisterView();">
+                    <span class="account-picker-new-icon">+</span>
+                    <span>Novo cadastro</span>
+                </button>
+                <button type="button" class="account-picker-cancel" onclick="closeModal('modalAlunos')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Solicitação de Documentos -->
+    <div id="modalDocumento" class="modal">
+        <div class="modal-content">
+            <button class="close" type="button" onclick="closeModal('modalDocumento')">&times;</button>
+            <h2>Solicitações</h2>
+            <form id="formDocumento">
+                <div id="docStepCategoria">
+                    <label>Selecione o tipo de solicitação:</label>
+                    <div class="tipo-buttons">
+                        <button type="button" class="tipo-btn" data-value="Acadêmico" onclick="selectTipo(this)">🎓 Acadêmico</button>
+                        <button type="button" class="tipo-btn" data-value="Financeiro" onclick="selectTipo(this)">💰 Financeiro</button>
+                        <button type="button" class="tipo-btn" data-value="Administrativo" onclick="selectTipo(this)">🏛️ Administrativo</button>
+                    </div>
+                </div>
+                <input type="hidden" id="docTipo">
+                <div id="docStepAcademico" class="doc-step hidden">
+                    <p id="docStepAcademicoTitle" class="doc-step-title">Solicitação de documentos</p>
+                    <label for="docAcademicoSelect">Selecione o documento acadêmico:</label>
+                    <select id="docAcademicoSelect">
+                        <option value="">Escolha uma opção</option>
+                        <option value="Atestado de Matrícula">Atestado de Matrícula</option>
+                        <option value="Carteirinha de Estudante">Carteirinha de Estudante</option>
+                        <option value="Histórico Escolar">Histórico Escolar</option>
+                        <option value="Ementa de Disciplinas">Ementa de Disciplinas</option>
+                        <option value="Certificado de Conclusão">Certificado de Conclusão</option>
+                        <option value="Diploma">Diploma</option>
+                    </select>
+                    <button type="button" class="btn btn-secondary small doc-back-btn">Voltar</button>
+                </div>
+                <div id="docStepFinanceiro" class="doc-step hidden">
+                    <p id="docStepFinanceiroTitle" class="doc-step-title">Solicitação financeira</p>
+                    <label for="docFinanceiroSelect">Selecione a solicitação financeira:</label>
+                    <select id="docFinanceiroSelect">
+                        <option value="">Escolha uma opção</option>
+                        <option value="2ª via de boleto">2ª via de boleto</option>
+                        <option value="Comprovante de pagamento">Comprovante de pagamento</option>
+                        <option value="Declaração de quitação">Declaração de quitação</option>
+                        <option value="Negociação de mensalidade">Negociação de mensalidade</option>
+                    </select>
+                    <button type="button" class="btn btn-secondary small doc-back-btn">Voltar</button>
+                </div>
+                <div id="docStepAdministrativo" class="doc-step hidden">
+                    <p id="docStepAdministrativoTitle" class="doc-step-title">Solicitação administrativa</p>
+                    <label for="docAdministrativoSelect">Selecione a solicitação administrativa:</label>
+                    <select id="docAdministrativoSelect">
+                        <option value="">Escolha uma opção</option>
+                        <option value="Atualização de cadastro">Atualização de cadastro</option>
+                        <option value="Aproveitamento de estudos">Aproveitamento de estudos</option>
+                        <option value="Trancamento de matrícula">Trancamento de matrícula</option>
+                        <option value="Transferência de curso">Transferência de curso</option>
+                    </select>
+                    <button type="button" class="btn btn-secondary small doc-back-btn">Voltar</button>
+                </div>
+
+                <button type="submit" class="btn-save">Abrir</button>
+            </form>
+            <div id="docResultado" class="doc-resultado hidden"></div>
+        </div>
+    </div>
+
+    <!-- Modal Dúvidas/Sugestões/Reclamações -->
+    <div id="modalGeral" class="modal">
+        <div class="modal-content">
+            <button class="close" type="button" onclick="closeModal('modalGeral')">&times;</button>
+            <h2>Envie sua Mensagem</h2>
+            <form id="formGeral">
+                <label for="tipoMensagem">Categoria:</label>
+                <select id="tipoMensagem" required>
+                    <option value="Dúvida">Dúvida</option>
+                    <option value="Sugestão">Sugestão</option>
+                    <option value="Reclamação">Reclamação</option>
+                    <option value="Tecnológico">Tecnológico</option>
+                    <option value="Acessibilidade">Acessibilidade</option>
+                </select>
+
+                <label for="mensagemTexto">Sua mensagem:</label>
+                <textarea id="mensagemTexto" rows="4" required placeholder="Descreva aqui sua solicitação..."></textarea>
+
+                <button type="submit" class="btn-save">Enviar Mensagem</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Resposta/Admin -->
+    <div id="modalResposta" class="modal">
+        <div class="modal-content">
+            <button class="close" type="button" onclick="closeModal('modalResposta')">&times;</button>
+            <h2>Responder Solicitação</h2>
+            <div id="requestInfo" class="request-info"></div>
+            <form id="formResposta">
+                <input type="hidden" id="respostaId">
+
+                <label for="respostaStatus">Status:</label>
+                <select id="respostaStatus">
+                    <option value="Pendente">Pendente</option>
+                    <option value="Concluído">Concluído</option>
+                </select>
+
+                <label for="respostaTexto">Resposta ao aluno:</label>
+                <textarea id="respostaTexto" rows="3" placeholder="Escreva sua resposta..."></textarea>
+
+                <div id="autoDocumentSection" style="display: none;">
+                    <button type="button" id="btnSendAutoDocument" class="btn btn-secondary">📄 Enviar Documento Automático</button>
+                </div>
+
+                <label for="respostaArquivo">Enviar arquivo personalizado (opcional):</label>
+                <input id="respostaArquivo" type="file">
+
+                <button type="submit" class="btn-save">Salvar Resposta</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
