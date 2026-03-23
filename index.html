@@ -276,7 +276,7 @@
                 <input id="loginUsername" required autocomplete="username" minlength="3" placeholder="Digite seu nome de usuário">
                 <label for="loginPassword">Senha</label>
                 <div class="password-field">
-                    <input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Digite sua senha">
+                    <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Digite sua senha">
                     <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Mostrar senha" title="Mostrar senha">
                         <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                             <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
@@ -413,11 +413,20 @@
                 <section id="adminTab-solicitacoes" class="tab-panel">
                     <div class="tab-header">
                         <h2>Solicitações dos Alunos</h2>
-                        <select id="filtroStatusSolicitacoes" class="filter-select" onchange="renderRequests('listaSolicitacoesAdmin','Documento',this.value)">
-                            <option value="Pendente">Pendentes</option>
-                            <option value="Concluído">Concluídos</option>
-                            <option value="">Todos</option>
-                        </select>
+                        <div class="tab-header-actions">
+                            <select id="filtroSetorSolicitacoes" class="filter-select" onchange="renderAdminRequestsByFilters('solicitacoes')">
+                                <option value="">Todos os setores</option>
+                                <option value="Administrativo">Administrativo</option>
+                                <option value="Financeiro">Financeiro</option>
+                                <option value="Acadêmico">Acadêmico</option>
+                                <option value="TI">TI</option>
+                            </select>
+                            <select id="filtroStatusSolicitacoes" class="filter-select" onchange="renderAdminRequestsByFilters('solicitacoes')">
+                                <option value="Pendente">Pendentes</option>
+                                <option value="Concluído">Concluídos</option>
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
                     </div>
                     <table>
                         <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
@@ -428,11 +437,20 @@
                 <section id="adminTab-mensagens" class="tab-panel" hidden>
                     <div class="tab-header">
                         <h2>Mensagens dos Alunos</h2>
-                        <select id="filtroStatusMensagens" class="filter-select" onchange="renderRequests('listaMensagensAdmin','Mensagem',this.value)">
-                            <option value="Pendente">Pendentes</option>
-                            <option value="Concluído">Concluídos</option>
-                            <option value="">Todos</option>
-                        </select>
+                        <div class="tab-header-actions">
+                            <select id="filtroSetorMensagens" class="filter-select" onchange="renderAdminRequestsByFilters('mensagens')">
+                                <option value="">Todos os setores</option>
+                                <option value="Administrativo">Administrativo</option>
+                                <option value="Financeiro">Financeiro</option>
+                                <option value="Acadêmico">Acadêmico</option>
+                                <option value="TI">TI</option>
+                            </select>
+                            <select id="filtroStatusMensagens" class="filter-select" onchange="renderAdminRequestsByFilters('mensagens')">
+                                <option value="Pendente">Pendentes</option>
+                                <option value="Concluído">Concluídos</option>
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
                     </div>
                     <table>
                         <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
@@ -491,8 +509,49 @@
             </div>
             <div id="listaFuncionarios" class="account-list"></div>
             <div class="account-picker-footer">
+                <button type="button" class="account-picker-new-btn" onclick="closeModal('modalFuncionarios'); openModal('modalFuncionarioCadastro');">
+                    <span class="account-picker-new-icon">+</span>
+                    <span>Novo funcionário</span>
+                </button>
                 <button type="button" class="account-picker-cancel" onclick="closeModal('modalFuncionarios')">Cancelar</button>
             </div>
+        </div>
+    </div>
+
+    <div id="modalFuncionarioCadastro" class="modal">
+        <div class="modal-content">
+            <button class="close" type="button" onclick="closeModal('modalFuncionarioCadastro')">&times;</button>
+            <h2>Cadastro de Funcionário</h2>
+            <form id="employeeRegisterForm">
+                <label for="employeeName">Nome</label>
+                <input id="employeeName" required minlength="3" placeholder="Nome do funcionário">
+
+                <label for="employeePassword">Senha</label>
+                <div class="password-field">
+                    <input id="employeePassword" type="password" required autocomplete="new-password" placeholder="Defina uma senha">
+                    <button type="button" class="password-toggle" data-target="employeePassword" aria-label="Mostrar senha" title="Mostrar senha">
+                        <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                        </svg>
+                        <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <label for="employeeSetor">Setor</label>
+                <select id="employeeSetor" required>
+                    <option value="">Selecione um setor</option>
+                    <option value="Administrativo">Administrativo</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="Acadêmico">Acadêmico</option>
+                    <option value="TI">TI</option>
+                    <option value="Administrador">Admin</option>
+                </select>
+
+                <small id="employeeRegisterStatus" class="field-status auth-status" aria-live="polite"></small>
+                <button type="submit" class="btn-save">Cadastrar Funcionário</button>
+            </form>
         </div>
     </div>
 
@@ -735,6 +794,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=20260322b"></script>
+    <script src="script.js?v=20260322c"></script>
 </body>
 </html>

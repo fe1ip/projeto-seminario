@@ -3,6 +3,7 @@ const STORAGE_CURRENT = 'portal_currentUser';
 const STORAGE_REQUESTS = 'portal_requests';
 const STORAGE_NOTAS = 'portal_notas';
 const CEP_LOOKUP_URL = 'https://viacep.com.br/ws';
+const EMPLOYEE_SECTORS = ['Administrativo', 'Financeiro', 'Acadêmico', 'TI', 'Administrador'];
 
 const MESSAGE_CATEGORY_KEYWORDS = {
   'Tecnológico': ['site', 'portal', 'sistema', 'app', 'erro', 'bug', 'login', 'senha', 'travando', 'carrega', 'tecnico', 'tecnológico', 'tecnologia', 'nao abre', 'não abre', 'nao funciona', 'não funciona', 'nao consigo', 'não consigo', 'acesso'],
@@ -79,9 +80,31 @@ function initApp() {
 function ensureDefaultUsers() {
   if (!localStorage.getItem(STORAGE_USERS)) {
     const defaultUsers = [
-      { username: 'admin', password: 'admin', name: 'Administrador', role: 'admin' }
+      { username: 'admin', password: 'admin', name: 'Administrador', role: 'admin', setor: 'Administrador' }
     ];
     localStorage.setItem(STORAGE_USERS, JSON.stringify(defaultUsers));
+    return;
+  }
+
+  const users = getUsers();
+  let changed = false;
+  const normalizedUsers = users.map(user => {
+    if (user.role !== 'admin') return user;
+    if (EMPLOYEE_SECTORS.includes(user.setor)) return user;
+    changed = true;
+    return {
+      ...user,
+      setor: user.username === 'admin' ? 'Administrador' : 'Administrativo'
+    };
+  });
+
+  if (changed) {
+    saveUsers(normalizedUsers);
+    const currentUser = getCurrentUser();
+    if (currentUser?.role === 'admin') {
+      const refreshed = normalizedUsers.find(u => u.username === currentUser.username);
+      if (refreshed) setCurrentUser(refreshed);
+    }
   }
 }
 
@@ -158,6 +181,7 @@ function bindEvents() {
   bind('mensagemTexto', 'input', updateMessageCategorySuggestion);
   bind('tipoMensagem', 'change', updateMessageCategorySuggestion);
   bind('formResposta', 'submit', handleAdminResponse);
+  bind('employeeRegisterForm', 'submit', handleEmployeeRegister);
   document.querySelectorAll('.doc-back-btn').forEach(btn => {
     btn.addEventListener('click', showDocumentCategoryStep);
   });
@@ -365,7 +389,39 @@ function showAdminView(user) {
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = false;
   setLandingElements(false);
+  setDefaultAdminSectorFilters(user);
   switchTab('adminView', 'solicitacoes');
+}
+
+function getUserSector(user = getCurrentUser()) {
+  if (!user || user.role !== 'admin') return '';
+  return EMPLOYEE_SECTORS.includes(user.setor) ? user.setor : 'Administrador';
+}
+
+function getDefaultSectorFilterValue(user = getCurrentUser()) {
+  const setor = getUserSector(user);
+  return setor === 'Administrador' ? '' : setor;
+}
+
+function setDefaultAdminSectorFilters(user = getCurrentUser()) {
+  const defaultValue = getDefaultSectorFilterValue(user);
+  const filtroSolicitacoes = document.getElementById('filtroSetorSolicitacoes');
+  const filtroMensagens = document.getElementById('filtroSetorMensagens');
+  if (filtroSolicitacoes) filtroSolicitacoes.value = defaultValue;
+  if (filtroMensagens) filtroMensagens.value = defaultValue;
+}
+
+function renderAdminRequestsByFilters(tab) {
+  if (tab === 'solicitacoes') {
+    const status = document.getElementById('filtroStatusSolicitacoes')?.value ?? 'Pendente';
+    const setor = document.getElementById('filtroSetorSolicitacoes')?.value ?? getDefaultSectorFilterValue();
+    renderRequests('listaSolicitacoesAdmin', 'Documento', status, setor);
+    return;
+  }
+
+  const status = document.getElementById('filtroStatusMensagens')?.value ?? 'Pendente';
+  const setor = document.getElementById('filtroSetorMensagens')?.value ?? getDefaultSectorFilterValue();
+  renderRequests('listaMensagensAdmin', 'Mensagem', status, setor);
 }
 
 
@@ -381,7 +437,7 @@ function handleLogin(event) {
     return;
   }
 
-  if (!password || password.length < 6) {
+  if (!password) {
     setAuthStatus('loginStatus', 'Informe sua senha.', true);
     return;
   }
@@ -455,6 +511,50 @@ function handleRegister(event) {
   document.getElementById('registerForm').reset();
   setAuthStatus('registerStatus', 'Cadastro realizado com sucesso.');
   showApp(newUser);
+}
+
+function handleEmployeeRegister(event) {
+  event.preventDefault();
+
+  const name = document.getElementById('employeeName')?.value.trim() || '';
+  const password = document.getElementById('employeePassword')?.value || '';
+  const setor = document.getElementById('employeeSetor')?.value || '';
+
+  setAuthStatus('employeeRegisterStatus', '');
+
+  if (name.length < 3) {
+    setAuthStatus('employeeRegisterStatus', 'Informe um nome com pelo menos 3 caracteres.', true);
+    return;
+  }
+  if (!password) {
+    setAuthStatus('employeeRegisterStatus', 'Informe uma senha para o funcionário.', true);
+    return;
+  }
+  if (!EMPLOYEE_SECTORS.includes(setor)) {
+    setAuthStatus('employeeRegisterStatus', 'Selecione um setor válido.', true);
+    return;
+  }
+
+  const users = getUsers();
+  if (users.find(u => String(u.name).toLowerCase() === name.toLowerCase())) {
+    setAuthStatus('employeeRegisterStatus', 'Já existe um usuário com esse nome.', true);
+    return;
+  }
+
+  const employee = {
+    username: name,
+    password,
+    name,
+    role: 'admin',
+    setor
+  };
+
+  users.push(employee);
+  saveUsers(users);
+  setAuthStatus('employeeRegisterStatus', 'Funcionário cadastrado com sucesso.');
+  document.getElementById('employeeRegisterForm')?.reset();
+  closeModal('modalFuncionarioCadastro');
+  openAccountDialog('admin');
 }
 
 function togglePasswordVisibility(button) {
@@ -735,8 +835,8 @@ function applyResponse(id, update) {
     return r;
   });
   saveRequests(updated);
-  renderRequests('listaSolicitacoesAdmin', 'Documento', document.getElementById('filtroStatusSolicitacoes')?.value ?? 'Pendente');
-  renderRequests('listaMensagensAdmin', 'Mensagem', document.getElementById('filtroStatusMensagens')?.value ?? 'Pendente');
+  renderAdminRequestsByFilters('solicitacoes');
+  renderAdminRequestsByFilters('mensagens');
 }
 
 function salvarSolicitacao({
@@ -751,6 +851,7 @@ function salvarSolicitacao({
   if (!user) return;
 
   const requests = getRequests();
+  const setorResponsavel = getRequestSector({ tipo, descricao });
   const newRequest = {
     id: Date.now(),
     createdAt: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }),
@@ -765,12 +866,33 @@ function salvarSolicitacao({
     fileName,
     responseAt: filePath ? new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : null,
     triagemAutomatica,
-    categoriaSugerida
+    categoriaSugerida,
+    setorResponsavel
   };
 
   requests.push(newRequest);
   saveRequests(requests);
   renderRequests('listaSolicitacoes');
+}
+
+function getRequestSector(request) {
+  const tipo = normalizeText(request?.tipo || '');
+  const descricao = normalizeText(request?.descricao || '');
+
+  if (tipo === 'tecnologico') return 'TI';
+  if (tipo === 'acessibilidade') return 'Acadêmico';
+
+  const isFinanceiro = /(boleto|pagamento|quitacao|quitação|mensalidade|financeiro)/.test(descricao);
+  const isAcademico = /(matricula|matrícula|rematricula|rematrícula|disciplina|academico|acadêmico)/.test(descricao);
+  const isCadastro = /(cadastro|trancamento|transferencia|transferência|aproveitamento|cpf|endereco|endereço|dados pessoais)/.test(descricao);
+  const isTecnologia = /(login|senha|erro|bug|sistema|portal|site|app|tecnologico|tecnológico)/.test(descricao);
+
+  if (isTecnologia) return 'TI';
+  if (isFinanceiro) return 'Financeiro';
+  if (isAcademico) return 'Acadêmico';
+  if (isCadastro) return 'Administrativo';
+
+  return 'Administrativo';
 }
 
 function switchTab(viewId, tab) {
@@ -791,18 +913,43 @@ function switchTab(viewId, tab) {
   } else {
     if (tab === 'solicitacoes') {
       document.getElementById('filtroStatusSolicitacoes').value = 'Pendente';
-      renderRequests('listaSolicitacoesAdmin', 'Documento', 'Pendente');
+      const filtroSetor = document.getElementById('filtroSetorSolicitacoes');
+      if (filtroSetor && !filtroSetor.value && getUserSector() !== 'Administrador') {
+        filtroSetor.value = getDefaultSectorFilterValue();
+      }
+      renderAdminRequestsByFilters('solicitacoes');
     }
     if (tab === 'mensagens') {
       document.getElementById('filtroStatusMensagens').value = 'Pendente';
-      renderRequests('listaMensagensAdmin', 'Mensagem', 'Pendente');
+      const filtroSetor = document.getElementById('filtroSetorMensagens');
+      if (filtroSetor && !filtroSetor.value && getUserSector() !== 'Administrador') {
+        filtroSetor.value = getDefaultSectorFilterValue();
+      }
+      renderAdminRequestsByFilters('mensagens');
     }
   }
 }
 
+function getRequestAssignedSector(request) {
+  return request.setorResponsavel || getRequestSector(request);
+}
+
+function canManageRequest(user, request) {
+  if (!user || user.role !== 'admin') return false;
+  const setorUsuario = getUserSector(user);
+  if (setorUsuario === 'Administrador') return true;
+  return getRequestAssignedSector(request) === setorUsuario;
+}
+
 function openResponseModal(requestId) {
+  const user = getCurrentUser();
   const request = getRequests().find(r => r.id === requestId);
   if (!request) return;
+
+  if (!canManageRequest(user, request)) {
+    alert('Você pode visualizar esta solicitação, mas apenas o setor responsável pode responder.');
+    return;
+  }
 
   document.getElementById('respostaId').value = request.id;
   document.getElementById('respostaStatus').value = request.status;
@@ -815,7 +962,7 @@ function openResponseModal(requestId) {
   openModal('modalResposta');
 }
 
-function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, statusFilter = null) {
+function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, statusFilter = null, setorFilter = '') {
   const user = getCurrentUser();
   if (!user) return;
 
@@ -838,7 +985,13 @@ function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, status
     filtered = filtered.filter(r => r.status === statusFilter);
   }
 
+  if (setorFilter) {
+    filtered = filtered.filter(r => getRequestSector(r) === setorFilter || r.setorResponsavel === setorFilter);
+  }
+
   filtered.forEach(r => {
+    const setor = getRequestAssignedSector(r);
+    const canManage = canManageRequest(user, r);
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${r.createdAt}</td>
@@ -848,15 +1001,18 @@ function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, status
         <div>${r.descricao}</div>
         ${r.response ? `<div class="muted">Resposta: ${r.response}</div>` : ''}
         ${r.triagemAutomatica ? `<div class="muted">Triagem automática: ${r.tipo}</div>` : ''}
+        ${user.role === 'admin' ? `<div class="muted">Setor: ${setor}</div>` : ''}
       </td>
       <td class="status-${r.status.toLowerCase()}">${r.status}</td>
       <td>${renderActions(r, user)}</td>
     `;
 
-    // Para administradores, tornar a linha clicável para responder
+    // Para administradores, apenas o setor responsável pode responder.
     if (user.role === 'admin') {
-      tr.style.cursor = 'pointer';
-      tr.addEventListener('click', () => openResponseModal(r.id));
+      tr.style.cursor = canManage ? 'pointer' : 'not-allowed';
+      if (canManage) {
+        tr.addEventListener('click', () => openResponseModal(r.id));
+      }
     }
 
     list.appendChild(tr);
@@ -865,6 +1021,9 @@ function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, status
 
 function renderActions(request, user) {
   if (user.role === 'admin') {
+    if (!canManageRequest(user, request)) {
+      return '<span class="muted">Somente visualização</span>';
+    }
     return `<button class="btn btn-primary" onclick="openResponseModal(${request.id})">Responder</button>`;
   }
 
@@ -932,7 +1091,10 @@ function openAccountDialog(role) {
       enterBtn.className = 'account-card-btn';
       enterBtn.innerHTML = `
         <span class="account-avatar" style="background:${getAvatarColor(u.name)}">${getInitials(u.name)}</span>
-        <span class="account-card-name">${u.name}</span>
+        <span class="account-card-meta">
+          <span class="account-card-name">${u.name}</span>
+          ${role === 'admin' ? `<span class="account-card-sector">${u.setor || 'Administrativo'}</span>` : ''}
+        </span>
       `;
       enterBtn.addEventListener('click', () => {
         closeModal(modalId);

@@ -701,6 +701,19 @@ input:focus, select:focus, textarea:focus {
     color: var(--text);
 }
 
+.account-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.account-card-sector {
+    font-size: 0.76rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
 .account-card-delete {
     display: flex;
     align-items: center;
@@ -784,6 +797,13 @@ input:focus, select:focus, textarea:focus {
 .account-picker-cancel:hover {
     background: rgba(0, 0, 0, 0.04);
     color: var(--text);
+}
+
+.tab-header-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .small {
