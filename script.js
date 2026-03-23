@@ -1,7 +1,24 @@
 ﻿const STORAGE_USERS = 'portal_users';
 const STORAGE_CURRENT = 'portal_currentUser';
 const STORAGE_REQUESTS = 'portal_requests';
+const STORAGE_NOTAS = 'portal_notas';
+
+const CATALOG_DISCIPLINAS = [
+  { nome: 'Algoritmos',                cargaHoraria: '80h',  categoria: 'Obrigatória' },
+  { nome: 'Cálculo I',                 cargaHoraria: '60h',  categoria: 'Obrigatória' },
+  { nome: 'Cálculo II',                cargaHoraria: '60h',  categoria: 'Obrigatória' },
+  { nome: 'Estrutura de Dados',        cargaHoraria: '100h', categoria: 'Opcional' },
+  { nome: 'Física I',                  cargaHoraria: '60h',  categoria: 'Opcional' },
+  { nome: 'Banco de Dados',            cargaHoraria: '80h',  categoria: 'Opcional' },
+  { nome: 'Programação Orientada a Objetos', cargaHoraria: '80h', categoria: 'Opcional' },
+  { nome: 'Redes de Computadores',     cargaHoraria: '60h',  categoria: 'Opcional' },
+  { nome: 'Engenharia de Software',    cargaHoraria: '80h',  categoria: 'Opcional' },
+  { nome: 'Sistemas Operacionais',     cargaHoraria: '60h',  categoria: 'Opcional' },
+  { nome: 'Inteligência Artificial',   cargaHoraria: '80h',  categoria: 'Opcional' },
+  { nome: 'Álgebra Linear',            cargaHoraria: '60h',  categoria: 'Obrigatória' },
+];
 let resetSlider = null;
+let selectedMatriculaContext = null;
 
 document.addEventListener('DOMContentLoaded', initApp);
 
@@ -56,7 +73,7 @@ function bindEvents() {
     }
   });
   bind('logoutBtn', 'click', handleLogout);
-  bind('btnSolicitarDocumento', 'click', () => {
+  bind('btnSolicitar', 'click', () => {
     resetDocumentModalState();
     openModal('modalDocumento');
   });
@@ -76,34 +93,43 @@ function bindEvents() {
   document.querySelectorAll('.doc-back-btn').forEach(btn => {
     btn.addEventListener('click', showDocumentCategoryStep);
   });
+
+  const matriculasPreview = document.getElementById('matriculasPreview');
+  if (matriculasPreview) {
+    matriculasPreview.addEventListener('contextmenu', handleMatriculaPreviewContextMenu);
+  }
+  bind('matriculasEditOption', 'click', handleMatriculaEditOption);
+  bind('matriculasRemoveOption', 'click', handleMatriculaRemoveOption);
+  document.addEventListener('click', hideMatriculasContextMenu);
 }
 
 const DOCUMENT_STEP_CONFIG = {
   'Acadêmico': {
-    stepId: 'docStepAcademico',
-    selectId: 'docAcademicoSelect',
-    titleId: 'docStepAcademicoTitle',
-    defaultTitle: 'Solicitação de documentos'
+    stepId: 'stepAcademico',
+    selectId: 'matriculasSelect',
+    modalTitle: 'Acadêmico'
   },
   'Financeiro': {
-    stepId: 'docStepFinanceiro',
-    selectId: 'docFinanceiroSelect',
-    titleId: 'docStepFinanceiroTitle',
-    defaultTitle: 'Solicitação financeira'
+    stepId: 'stepFinanceiro',
+    selectId: 'financeiroSelect',
+    modalTitle: 'Financeiro'
   },
-  'Administrativo': {
-    stepId: 'docStepAdministrativo',
-    selectId: 'docAdministrativoSelect',
-    titleId: 'docStepAdministrativoTitle',
-    defaultTitle: 'Solicitação administrativa'
+  'Cadastro': {
+    stepId: 'stepCadastro',
+    selectId: 'cadastroSelect',
+    modalTitle: 'Cadastro'
   }
 };
 
 function resetDocumentModalState() {
   document.getElementById('formDocumento').reset();
+  document.getElementById('formDocumento').classList.remove('hidden');
   document.getElementById('docTipo').value = '';
   document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('selected'));
-  Object.keys(DOCUMENT_STEP_CONFIG).forEach(tipo => updateDocumentStepTitle(tipo));
+  document.querySelectorAll('.matricula-option-btn').forEach(b => b.classList.remove('selected'));
+  renderMatriculasPreview([]);
+  hideMatriculasContextMenu();
+  updateDocumentModalTitle();
   const r = document.getElementById('docResultado');
   if (r) {
     r.innerHTML = '';
@@ -113,12 +139,15 @@ function resetDocumentModalState() {
 }
 
 function showDocumentStep(tipo) {
-  const config = DOCUMENT_STEP_CONFIG[tipo];
+  const normalizedTipo = (tipo || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const config = DOCUMENT_STEP_CONFIG[tipo]
+    || Object.entries(DOCUMENT_STEP_CONFIG).find(([key]) => (
+      key.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() === normalizedTipo
+    ))?.[1];
   if (!config) return;
 
   const stepCategoria = document.getElementById('docStepCategoria');
   const step = document.getElementById(config.stepId);
-  const submitBtn = document.querySelector('#formDocumento .btn-save');
 
   Object.values(DOCUMENT_STEP_CONFIG).forEach(({ stepId }) => {
     const section = document.getElementById(stepId);
@@ -127,32 +156,38 @@ function showDocumentStep(tipo) {
 
   if (stepCategoria) stepCategoria.classList.add('hidden');
   if (step) step.classList.remove('hidden');
-  if (submitBtn) submitBtn.textContent = 'Enviar Solicitação';
-  updateDocumentStepTitle(tipo, tipo);
+  document.getElementById('modalDocumentoBack')?.classList.remove('hidden');
+  updateDocumentModalTitle(config.modalTitle || tipo);
 }
 
 function showDocumentCategoryStep() {
   const stepCategoria = document.getElementById('docStepCategoria');
-  const submitBtn = document.querySelector('#formDocumento .btn-save');
 
   if (stepCategoria) stepCategoria.classList.remove('hidden');
+  document.getElementById('modalDocumentoBack')?.classList.add('hidden');
+  updateDocumentModalTitle();
+  hideMatriculasContextMenu();
+  document.getElementById('stepAcademico')?.classList.add('hidden');
   Object.values(DOCUMENT_STEP_CONFIG).forEach(({ stepId, selectId }) => {
     const step = document.getElementById(stepId);
     const select = document.getElementById(selectId);
     if (step) step.classList.add('hidden');
     if (select) select.value = '';
   });
-
-  if (submitBtn) submitBtn.textContent = 'Abrir';
+  document.getElementById('atualizacaoCadastroForm')?.classList.add('hidden');
+  document.getElementById('cadastroEnviarBtn')?.classList.remove('hidden');
+  document.getElementById('modalDocumento')?.classList.remove('modal--wide');
 }
 
-function updateDocumentStepTitle(tipo, title = '') {
-  const config = DOCUMENT_STEP_CONFIG[tipo];
-  if (!config) return;
+function showAcademicoStep() {
+  document.getElementById('docTipo').value = 'Acadêmico';
+  showDocumentStep('Acadêmico');
+}
 
-  const stepTitle = document.getElementById(config.titleId);
-  if (!stepTitle) return;
-  stepTitle.textContent = title || config.defaultTitle;
+function updateDocumentModalTitle(title = 'Solicitações') {
+  const modalTitle = document.getElementById('modalDocumentoTitle');
+  if (!modalTitle) return;
+  modalTitle.textContent = title;
 }
 
 function updateHeaderAuthState(user, currentView = 'landingView') {
@@ -185,6 +220,13 @@ function loadCurrentUser() {
   }
 }
 
+function setLandingElements(visible) {
+  const footer = document.getElementById('siteFooter');
+  const nav    = document.getElementById('mainNav');
+  if (footer) footer.hidden = !visible;
+  if (nav)    nav.hidden    = !visible;
+}
+
 function showLanding() {
   updateHeaderAuthState(null, 'landingView');
   document.getElementById('landingView').hidden = false;
@@ -192,6 +234,7 @@ function showLanding() {
   document.getElementById('registerView').hidden = true;
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = true;
+  setLandingElements(true);
   if (resetSlider) resetSlider();
 }
 
@@ -202,6 +245,7 @@ function showLoginView() {
   document.getElementById('registerView').hidden = true;
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = true;
+  setLandingElements(false);
 }
 
 function showRegisterView() {
@@ -211,6 +255,7 @@ function showRegisterView() {
   document.getElementById('registerView').hidden = false;
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = true;
+  setLandingElements(false);
 }
 
 function showRegister() {
@@ -222,6 +267,7 @@ function showRegister() {
   document.getElementById('registerView').hidden = false;
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = true;
+  setLandingElements(false);
 }
 
 function showApp(user) {
@@ -239,7 +285,8 @@ function showAppView(user) {
   document.getElementById('registerView').hidden = true;
   document.getElementById('appView').hidden = false;
   document.getElementById('adminView').hidden = true;
-  switchTab('appView', 'documentos');
+  setLandingElements(false);
+  switchTab('appView', 'solicitacoes');
 }
 
 function showAdminView(user) {
@@ -249,6 +296,7 @@ function showAdminView(user) {
   document.getElementById('registerView').hidden = true;
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = false;
+  setLandingElements(false);
   switchTab('adminView', 'solicitacoes');
 }
 
@@ -274,12 +322,19 @@ function handleLogout() {
   showLanding();
 }
 
+function generateMatricula() {
+  const year = new Date().getFullYear();
+  const count = getUsers().filter(u => u.role === 'aluno').length + 1;
+  return `${year}${String(count).padStart(6, '0')}`;
+}
+
 function handleRegister(event) {
   event.preventDefault();
   const name = document.getElementById('registerName').value.trim();
   const password = document.getElementById('registerPassword').value;
+  const curso = document.getElementById('registerCurso').value;
 
-  if (!name || !password) {
+  if (!name || !password || !curso) {
     alert('Preencha todos os campos.');
     return;
   }
@@ -291,7 +346,8 @@ function handleRegister(event) {
   }
 
   const username = name;
-  const newUser = { username, password, name, role: 'aluno' };
+  const matricula = generateMatricula();
+  const newUser = { username, password, name, role: 'aluno', curso, matricula };
   users.push(newUser);
   saveUsers(users);
 
@@ -314,6 +370,8 @@ async function handleDocumentSubmit(event) {
   if (!tipo) { alert('Selecione o tipo de solicitação.'); return; }
 
   const stepConfig = DOCUMENT_STEP_CONFIG[tipo];
+  if (!stepConfig) return;
+
   const isStepVisible = stepConfig
     ? !document.getElementById(stepConfig.stepId)?.classList.contains('hidden')
     : false;
@@ -342,6 +400,7 @@ async function handleDocumentSubmit(event) {
     const res = await fetch(filePath, { method: 'HEAD' });
     if (res.ok) {
       salvarSolicitacao({ tipo: 'Documento', descricao: requestedItem, filePath, fileName });
+      document.getElementById('formDocumento').classList.add('hidden');
       resultado.innerHTML = `
         ✅ Documento disponível:
         <a href="${filePath}" download="${fileName}">
@@ -354,7 +413,6 @@ async function handleDocumentSubmit(event) {
           ${fileName}
         </a>`;
       resultado.classList.remove('hidden');
-      resetDocumentModalState();
       return;
     }
   } catch (_) {}
@@ -460,7 +518,7 @@ function switchTab(viewId, tab) {
   if (btn) btn.classList.add('active');
 
   if (viewId === 'appView') {
-    if (tab === 'documentos')   renderRequests('listaDocumentos', 'Documento');
+    if (tab === 'visao-geral')  renderVisaoGeral();
     if (tab === 'solicitacoes') renderRequests('listaSolicitacoes');
     if (tab === 'mensagens')    renderRequests('listaMensagens', 'Mensagem');
   } else {
@@ -729,11 +787,301 @@ function selectTipo(btn) {
   btn.classList.add('selected');
   const tipo = btn.dataset.value;
   document.getElementById('docTipo').value = tipo;
-  updateDocumentStepTitle(tipo, tipo);
+  const config = DOCUMENT_STEP_CONFIG[tipo];
+  if (config?.modalTitle) {
+    updateDocumentModalTitle(config.modalTitle);
+  }
+}
+
+function selectMatriculaOption(btn) {
+  document.querySelectorAll('.matricula-option-btn').forEach(optionBtn => optionBtn.classList.remove('selected'));
+  btn.classList.add('selected');
+  const selectedValue = btn.dataset.value;
+  document.getElementById('matriculasSelect').value = selectedValue;
+  hideMatriculasContextMenu();
+
+  if (selectedValue === 'Ver matrículas') {
+    const user = getCurrentUser();
+    const matriculas = user ? getNotas(user.username).disciplinas : [];
+    renderMatriculasPreview(matriculas);
+    return;
+  }
+
+  if (selectedValue === 'Disciplinas disponíveis') {
+    const user = getCurrentUser();
+    const matriculadas = user ? getNotas(user.username).disciplinas.map(d => d.nome) : [];
+    const disponiveis = CATALOG_DISCIPLINAS.filter(d => !matriculadas.includes(d.nome));
+    renderDisciplinasDisponiveis(disponiveis);
+    return;
+  }
+
+  renderMatriculasPreview([]);
+}
+
+function renderMatriculasPreview(matriculas) {
+  const preview = document.getElementById('matriculasPreview');
+  if (!preview) return;
+
+  if (!matriculas.length) {
+    preview.innerHTML = '';
+    preview.classList.add('hidden');
+    selectedMatriculaContext = null;
+    return;
+  }
+
+  const normalizedMatriculas = matriculas.map((disciplina, index) => {
+    if (typeof disciplina === 'string') {
+      return {
+        nome: disciplina,
+        categoria: index < 2 ? 'Obrigatória' : 'Opcional'
+      };
+    }
+
+    return {
+      ...disciplina,
+      categoria: disciplina.categoria || (index < 2 ? 'Obrigatória' : 'Opcional')
+    };
+  });
+
+  preview.innerHTML = `
+    <span class="matricula-preview-label">Matrículas atuais</span>
+    ${normalizedMatriculas.map(disciplina => `
+      <label class="matricula-preview-item" data-nome="${disciplina.nome}" data-categoria="${disciplina.categoria}">
+        <div class="matricula-preview-row">
+          <input type="text" value="${disciplina.nome}" readonly>
+          <span class="matricula-category-badge ${disciplina.categoria === 'Obrigatória' ? 'is-required' : 'is-optional'}">${disciplina.categoria}</span>
+        </div>
+      </label>
+    `).join('')}
+  `;
+  preview.classList.remove('hidden');
+}
+
+function renderDisciplinasDisponiveis(disciplinas) {
+  const preview = document.getElementById('matriculasPreview');
+  if (!preview) return;
+
+  if (!disciplinas.length) {
+    preview.innerHTML = '<span class="matricula-preview-label">Nenhuma disciplina disponível para matrícula.</span>';
+    preview.classList.remove('hidden');
+    return;
+  }
+
+  preview.innerHTML = `
+    <span class="matricula-preview-label">Disciplinas disponíveis para matrícula</span>
+    ${disciplinas.map(d => `
+      <label class="matricula-preview-item" data-nome="${d.nome}" data-categoria="${d.categoria}">
+        <div class="matricula-preview-row">
+          <input type="text" value="${d.nome}" readonly>
+          <span class="matricula-category-badge ${d.categoria === 'Obrigatória' ? 'is-required' : 'is-optional'}">${d.categoria}</span>
+          <span class="matricula-carga">${d.cargaHoraria}</span>
+        </div>
+      </label>
+    `).join('')}
+  `;
+  preview.classList.remove('hidden');
+}
+
+function handleMatriculaPreviewContextMenu(event) {
+  if (document.getElementById('matriculasSelect')?.value === 'Disciplinas disponíveis') return;
+
+  const item = event.target.closest('.matricula-preview-item');
+  if (!item) return;
+
+  event.preventDefault();
+  selectedMatriculaContext = {
+    nome: item.dataset.nome || item.querySelector('input')?.value || '',
+    categoria: item.dataset.categoria || 'Obrigatória'
+  };
+
+  const menu = document.getElementById('matriculasContextMenu');
+  if (!menu) return;
+  const editBtn = document.getElementById('matriculasEditOption');
+  const removeBtn = document.getElementById('matriculasRemoveOption');
+  const isRequired = selectedMatriculaContext.categoria === 'Obrigatória';
+
+  if (editBtn) editBtn.disabled = isRequired;
+  if (removeBtn) removeBtn.disabled = isRequired;
+  menu.style.left = `${event.clientX}px`;
+  menu.style.top = `${event.clientY}px`;
+  menu.classList.remove('hidden');
+}
+
+function hideMatriculasContextMenu() {
+  const menu = document.getElementById('matriculasContextMenu');
+  if (!menu) return;
+  menu.classList.add('hidden');
+}
+
+function handleMatriculaEditOption(event) {
+  event.preventDefault();
+  if (!selectedMatriculaContext?.nome) return;
+  if (selectedMatriculaContext.categoria === 'Obrigatória') {
+    alert('Disciplinas obrigatórias não podem ser editadas.');
+    hideMatriculasContextMenu();
+    return;
+  }
+
+  document.getElementById('matriculasSelect').value = `Edição de matrícula - ${selectedMatriculaContext.nome}`;
+  hideMatriculasContextMenu();
+}
+
+function handleMatriculaRemoveOption(event) {
+  event.preventDefault();
+  if (!selectedMatriculaContext?.nome) return;
+  if (selectedMatriculaContext.categoria === 'Obrigatória') {
+    alert('Disciplinas obrigatórias não podem ser removidas.');
+    hideMatriculasContextMenu();
+    return;
+  }
+
+  document.getElementById('matriculasSelect').value = `Remoção de matrícula - ${selectedMatriculaContext.nome}`;
+  hideMatriculasContextMenu();
+}
+
+function handleCadastroSelectChange(select) {
+  const isAtualizar = select.value === 'Atualização de cadastro';
+  const form = document.getElementById('atualizacaoCadastroForm');
+  const enviarBtn = document.getElementById('cadastroEnviarBtn');
+
+  document.getElementById('modalDocumento')?.classList.toggle('modal--wide', isAtualizar);
+
+  if (isAtualizar) {
+    const user = getCurrentUser();
+    if (user) {
+      document.getElementById('editNome').value       = user.name         || '';
+      document.getElementById('editCpf').value        = user.cpf          || '';
+      document.getElementById('editDataNasc').value   = user.dataNasc     || '';
+      document.getElementById('editSexo').value       = user.sexo         || '';
+      document.getElementById('editCurso').value      = user.curso        || '';
+      document.getElementById('editEmail').value      = user.email        || '';
+      document.getElementById('editTelefone').value   = user.telefone     || '';
+      document.getElementById('editCep').value        = user.cep          || '';
+      document.getElementById('editLogradouro').value = user.logradouro   || '';
+      document.getElementById('editNumero').value     = user.numero       || '';
+      document.getElementById('editComplemento').value= user.complemento  || '';
+      document.getElementById('editBairro').value     = user.bairro       || '';
+      document.getElementById('editCidade').value     = user.cidade       || '';
+      document.getElementById('editEstado').value     = user.estado       || '';
+    }
+    form?.classList.remove('hidden');
+    enviarBtn?.classList.add('hidden');
+  } else {
+    form?.classList.add('hidden');
+    enviarBtn?.classList.remove('hidden');
+  }
+}
+
+function saveAtualizacaoCadastro() {
+  const nome = document.getElementById('editNome').value.trim();
+  const curso = document.getElementById('editCurso').value;
+
+  if (!nome || !curso) {
+    alert('Preencha ao menos Nome e Curso.');
+    return;
+  }
+
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const updates = {
+    name:        nome,
+    curso,
+    cpf:         document.getElementById('editCpf').value.trim(),
+    dataNasc:    document.getElementById('editDataNasc').value,
+    sexo:        document.getElementById('editSexo').value,
+    email:       document.getElementById('editEmail').value.trim(),
+    telefone:    document.getElementById('editTelefone').value.trim(),
+    cep:         document.getElementById('editCep').value.trim(),
+    logradouro:  document.getElementById('editLogradouro').value.trim(),
+    numero:      document.getElementById('editNumero').value.trim(),
+    complemento: document.getElementById('editComplemento').value.trim(),
+    bairro:      document.getElementById('editBairro').value.trim(),
+    cidade:      document.getElementById('editCidade').value.trim(),
+    estado:      document.getElementById('editEstado').value,
+  };
+
+  saveUsers(getUsers().map(u => u.username === user.username ? { ...u, ...updates } : u));
+  setCurrentUser({ ...user, ...updates });
+
+  alert('Cadastro atualizado com sucesso.');
+  closeModal('modalDocumento');
+  resetDocumentModalState();
 }
 
 function getUsers() {
   return JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
+}
+
+function getNotas(username) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_NOTAS) || '{}');
+  if (all[username]) {
+    const disciplinasComCategoria = (all[username].disciplinas || []).map((disciplina, index) => ({
+      ...disciplina,
+      categoria: disciplina.categoria || (index < 2 ? 'Obrigatória' : 'Opcional')
+    }));
+    return {
+      ...all[username],
+      disciplinas: disciplinasComCategoria
+    };
+  }
+  return {
+    semestre: '2026.1',
+    disciplinas: [
+      { nome: 'Algoritmos',          cargaHoraria: '80h',  nota: 9.0, situacao: 'Aprovado', categoria: 'Obrigatória' },
+      { nome: 'Cálculo I',           cargaHoraria: '60h',  nota: 7.5, situacao: 'Aprovado', categoria: 'Obrigatória' },
+      { nome: 'Estrutura de Dados',  cargaHoraria: '100h', nota: 8.8, situacao: 'Aprovado', categoria: 'Opcional' },
+      { nome: 'Física I',            cargaHoraria: '60h',  nota: 7, situacao: 'Aprovado', categoria: 'Opcional' },
+    ]
+  };
+}
+
+function renderVisaoGeral() {
+  const user = getCurrentUser();
+  if (!user) return;
+  const { semestre, disciplinas } = getNotas(user.username);
+  const total    = disciplinas.length;
+  const media    = total ? (disciplinas.reduce((s, d) => s + d.nota, 0) / total).toFixed(1) : '—';
+  const aprovadas = disciplinas.filter(d => d.situacao === 'Aprovado').length;
+
+  document.getElementById('visaoGeralContent').innerHTML = `
+    <div class="cadastro-card">
+      <div class="cadastro-avatar" style="background:${getAvatarColor(user.name)}">${getInitials(user.name)}</div>
+      <div class="cadastro-info">
+        <span class="cadastro-nome">${user.name}</span>
+        <span class="cadastro-curso">${user.curso || '—'}</span>
+        <span class="cadastro-matricula">Matrícula: <strong>${user.matricula || '—'}</strong></span>
+        <span class="cadastro-semestre">Semestre: ${semestre}</span>
+      </div>
+      <span class="cadastro-status">Ativo</span>
+    </div>
+    <div class="visao-cards">
+      <div class="visao-card">
+        <span class="visao-card-label">Semestre</span>
+        <span class="visao-card-value">${semestre}</span>
+      </div>
+      <div class="visao-card">
+        <span class="visao-card-label">Média geral</span>
+        <span class="visao-card-value">${media}</span>
+      </div>
+      <div class="visao-card">
+        <span class="visao-card-label">Aprovações</span>
+        <span class="visao-card-value">${aprovadas} / ${total}</span>
+      </div>
+    </div>
+    <h3 class="visao-subtitle">Notas por disciplina</h3>
+    <table>
+      <thead><tr><th>Disciplina</th><th>Carga Horária</th><th>Nota</th><th>Situação</th></tr></thead>
+      <tbody>
+        ${disciplinas.map(d => `
+          <tr>
+            <td>${d.nome}</td>
+            <td>${d.cargaHoraria}</td>
+            <td>${d.nota.toFixed(1)}</td>
+            <td class="${d.situacao === 'Aprovado' ? 'status-concluido' : 'status-pendente'}">${d.situacao}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
 }
 
 function saveUsers(users) {
