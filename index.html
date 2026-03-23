@@ -273,9 +273,21 @@
             <h2>Login no Portal</h2>
             <form id="loginForm" autocomplete="off">
                 <label for="loginUsername">Nome</label>
-                <input id="loginUsername" required autocomplete="off">
+                <input id="loginUsername" required autocomplete="username" minlength="3" placeholder="Digite seu nome de usuário">
                 <label for="loginPassword">Senha</label>
-                <input id="loginPassword" type="password" required autocomplete="new-password">
+                <div class="password-field">
+                    <input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Digite sua senha">
+                    <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Mostrar senha" title="Mostrar senha">
+                        <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                        </svg>
+                        <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <small class="auth-help">Funcionários e alunos usam o mesmo formulário de acesso.</small>
+                <small id="loginStatus" class="field-status auth-status" aria-live="polite"></small>
             </form>
 
             <div class="button-group">
@@ -290,9 +302,40 @@
             <h2>Cadastro de Aluno</h2>
             <form id="registerForm">
                 <label for="registerName">Nome</label>
-                <input id="registerName" required>
+                <input id="registerName" required autocomplete="name" minlength="3" placeholder="Nome completo">
                 <label for="registerPassword">Senha</label>
-                <input id="registerPassword" type="password" required>
+                <div class="password-field">
+                    <input id="registerPassword" type="password" required autocomplete="new-password" minlength="8" placeholder="Crie uma senha forte">
+                    <button type="button" class="password-toggle" data-target="registerPassword" aria-label="Mostrar senha" title="Mostrar senha">
+                        <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                        </svg>
+                        <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <ul class="password-requirements" id="registerPasswordRequirements" aria-live="polite">
+                    <li id="reqLength" class="req-item">Pelo menos 8 caracteres</li>
+                    <li id="reqUpper" class="req-item">1 letra maiúscula (A-Z)</li>
+                    <li id="reqLower" class="req-item">1 letra minúscula (a-z)</li>
+                    <li id="reqNumber" class="req-item">1 número (0-9)</li>
+                    <li id="reqSpecial" class="req-item">1 caractere especial (ex.: !@#$%)</li>
+                    <li id="reqNoSpaces" class="req-item">Sem espaços em branco</li>
+                </ul>
+                <label for="registerPasswordConfirm">Confirmar senha</label>
+                <div class="password-field">
+                    <input id="registerPasswordConfirm" type="password" required autocomplete="new-password" minlength="8" placeholder="Repita sua senha">
+                    <button type="button" class="password-toggle" data-target="registerPasswordConfirm" aria-label="Mostrar senha" title="Mostrar senha">
+                        <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                        </svg>
+                        <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <small class="auth-help">A senha só será aceita quando todos os requisitos acima forem atendidos.</small>
                 <label for="registerCurso">Curso</label>
                 <select id="registerCurso" required>
                     <option value="">Selecione um curso</option>
@@ -305,6 +348,7 @@
                     <option value="Engenharia Civil">Engenharia Civil</option>
                     <option value="Psicologia">Psicologia</option>
                 </select>
+                <small id="registerStatus" class="field-status auth-status" aria-live="polite"></small>
             </form>
 
             <div class="button-group">
@@ -573,6 +617,7 @@
                                 <div>
                                     <label for="editCep">CEP</label>
                                     <input id="editCep" type="text" placeholder="00000-000">
+                                    <small id="editCepStatus" class="field-status" aria-live="polite"></small>
                                 </div>
                                 <div>
                                     <label for="editNumero">Número</label>
@@ -643,12 +688,14 @@
             <form id="formGeral">
                 <label for="tipoMensagem">Categoria:</label>
                 <select id="tipoMensagem" required>
+                    <option value="Auto">Automático (sugerir)</option>
                     <option value="Dúvida">Dúvida</option>
                     <option value="Sugestão">Sugestão</option>
                     <option value="Reclamação">Reclamação</option>
                     <option value="Tecnológico">Tecnológico</option>
                     <option value="Acessibilidade">Acessibilidade</option>
                 </select>
+                <small id="tipoMensagemHint" class="field-status" aria-live="polite"></small>
 
                 <label for="mensagemTexto">Sua mensagem:</label>
                 <textarea id="mensagemTexto" rows="4" required placeholder="Descreva aqui sua solicitação..."></textarea>
@@ -688,6 +735,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260322b"></script>
 </body>
 </html>

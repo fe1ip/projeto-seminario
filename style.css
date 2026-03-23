@@ -252,6 +252,18 @@ header p {
     cursor: pointer;
 }
 
+.field-status {
+    display: block;
+    margin-top: 0.35rem;
+    min-height: 1rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.field-status.is-error {
+    color: #c50f1f;
+}
+
 .actions {
     display: flex;
     flex-wrap: wrap;
@@ -879,6 +891,96 @@ input:focus, select:focus, textarea:focus {
 .dropdown-item:hover {
     background: rgba(165, 28, 48, 0.1);
     color: var(--accent);
+}
+
+.auth-box {
+    max-width: 520px;
+    margin: 2rem auto;
+    padding: 1.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.password-field {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.password-field input {
+    width: 100%;
+}
+
+.password-toggle {
+    border: 1px solid var(--border);
+    background: #f7f7f7;
+    color: var(--text);
+    padding: 0.65rem;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.password-toggle svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: currentColor;
+}
+
+.password-toggle .icon-eye-off {
+    display: none;
+}
+
+.password-toggle.is-visible .icon-eye {
+    display: none;
+}
+
+.password-toggle.is-visible .icon-eye-off {
+    display: block;
+}
+
+.auth-help {
+    display: block;
+    margin-top: -0.35rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.password-requirements {
+    margin: -0.25rem 0 0.15rem;
+    padding-left: 1rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+    display: grid;
+    gap: 0.2rem;
+}
+
+.req-item::marker {
+    color: #a7a7a7;
+}
+
+.req-item.is-met {
+    color: #0f5132;
+    font-weight: 600;
+}
+
+.req-item.is-met::marker {
+    color: #0f5132;
+}
+
+.auth-status {
+    min-height: 1.15rem;
+    margin-top: -0.2rem;
 }
 
 .button-group {

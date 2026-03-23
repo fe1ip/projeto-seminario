@@ -2,6 +2,42 @@
 const STORAGE_CURRENT = 'portal_currentUser';
 const STORAGE_REQUESTS = 'portal_requests';
 const STORAGE_NOTAS = 'portal_notas';
+const CEP_LOOKUP_URL = 'https://viacep.com.br/ws';
+
+const MESSAGE_CATEGORY_KEYWORDS = {
+  'Tecnológico': ['site', 'portal', 'sistema', 'app', 'erro', 'bug', 'login', 'senha', 'travando', 'carrega', 'tecnico', 'tecnológico', 'tecnologia', 'nao abre', 'não abre', 'nao funciona', 'não funciona', 'nao consigo', 'não consigo', 'acesso'],
+  'Acessibilidade': ['acessibilidade', 'libras', 'leitor de tela', 'contraste', 'fonte', 'teclado', 'deficiencia', 'deficiência', 'auditiva', 'visual', 'legendas', 'audiodescricao', 'audiodescrição'],
+  'Reclamação': ['reclama', 'reclamação', 'insatisfeito', 'insatisfação', 'atraso', 'demora', 'ruim', 'péssimo', 'pessimo', 'problema', 'falha', 'descaso', 'demorado', 'sem retorno', 'nao respondem', 'não respondem'],
+  'Sugestão': ['sugest', 'melhoria', 'proponho', 'seria bom', 'poderia', 'recomendo', 'ideia', 'idéia', 'seria interessante', 'fica a dica', 'minha sugestao', 'minha sugestão'],
+  'Dúvida': ['duvida', 'dúvida', 'como', 'quando', 'onde', 'qual', 'quais', 'posso', 'gostaria de saber', 'tenho uma pergunta']
+};
+
+const MESSAGE_CATEGORY_PATTERNS = {
+  'Tecnológico': [
+    /\b(erro|bug|falha|instabilidade)\b/,
+    /\b(login|senha|acesso|portal|sistema|site|app)\b/,
+    /\b(nao|não)\s+consigo\b/,
+    /\b(nao|não)\s+(abre|funciona|carrega)\b/
+  ],
+  'Acessibilidade': [
+    /\b(acessibilidade|libras|contraste|audiodescricao|audiodescrição|leitor de tela|teclado)\b/,
+    /\b(deficiencia|deficiência|visual|auditiva|motora)\b/
+  ],
+  'Reclamação': [
+    /\b(reclama(cao|ção)?|insatisfeito|insatisfacao|insatisfação|descaso)\b/,
+    /\b(atraso|demora|demorado|sem retorno|nao respondem|não respondem)\b/,
+    /\b(ruim|pessimo|péssimo)\b/
+  ],
+  'Sugestão': [
+    /\b(sugest(ao|ão)?|melhoria|proponho|recomendo|ideia|idéia)\b/,
+    /\b(seria bom|seria interessante|poderia)\b/
+  ],
+  'Dúvida': [
+    /\?/,
+    /\b(duvida|dúvida|como|quando|onde|qual|quais)\b/,
+    /\b(gostaria de saber|tenho uma pergunta)\b/
+  ]
+};
 
 const CATALOG_DISCIPLINAS = [
   { nome: 'Algoritmos',                cargaHoraria: '80h',  categoria: 'Obrigatória' },
@@ -19,6 +55,17 @@ const CATALOG_DISCIPLINAS = [
 ];
 let resetSlider = null;
 let selectedMatriculaContext = null;
+let cepStatusTimer = null;
+let lastCepLookup = '';
+
+const PASSWORD_REQUIREMENTS = {
+  length: (password) => password.length >= 8,
+  upper: (password) => /[A-Z]/.test(password),
+  lower: (password) => /[a-z]/.test(password),
+  number: (password) => /\d/.test(password),
+  special: (password) => /[^A-Za-z0-9\s]/.test(password),
+  noSpaces: (password) => !/\s/.test(password)
+};
 
 document.addEventListener('DOMContentLoaded', initApp);
 
@@ -60,6 +107,9 @@ function bindEvents() {
       document.getElementById('loginForm').requestSubmit();
     }
   });
+  document.querySelectorAll('.password-toggle').forEach(btn => {
+    btn.addEventListener('click', () => togglePasswordVisibility(btn));
+  });
   bind('registerForm', 'submit', handleRegister);
   bind('registerName', 'keydown', (e) => {
     if (e.key === 'Enter') {
@@ -69,15 +119,31 @@ function bindEvents() {
   });
   bind('registerPassword', 'keydown', (e) => {
     if (e.key === 'Enter' && e.target.value) {
+      document.getElementById('registerPasswordConfirm')?.focus();
+    }
+  });
+  bind('registerPassword', 'input', updatePasswordRequirementsUI);
+  bind('registerPasswordConfirm', 'keydown', (e) => {
+    if (e.key === 'Enter' && e.target.value) {
       document.getElementById('registerForm').requestSubmit();
     }
   });
+  bind('registerPasswordConfirm', 'input', updatePasswordRequirementsUI);
   bind('logoutBtn', 'click', handleLogout);
+  bind('editCep', 'input', handleCepInput);
+  bind('editCep', 'blur', handleCepLookup);
   bind('btnSolicitar', 'click', () => {
     resetDocumentModalState();
     openModal('modalDocumento');
   });
-  bind('btnDuvidas', 'click', () => openModal('modalGeral'));
+  bind('btnDuvidas', 'click', () => {
+    const form = document.getElementById('formGeral');
+    if (form) form.reset();
+    const tipoSelect = document.getElementById('tipoMensagem');
+    if (tipoSelect) tipoSelect.value = 'Auto';
+    updateMessageCategorySuggestion();
+    openModal('modalGeral');
+  });
   document.querySelectorAll('.sidebar-item').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.view, btn.dataset.tab));
   });
@@ -89,6 +155,8 @@ function bindEvents() {
     }
   });
   bind('formGeral', 'submit', handleGeneralSubmit);
+  bind('mensagemTexto', 'input', updateMessageCategorySuggestion);
+  bind('tipoMensagem', 'change', updateMessageCategorySuggestion);
   bind('formResposta', 'submit', handleAdminResponse);
   document.querySelectorAll('.doc-back-btn').forEach(btn => {
     btn.addEventListener('click', showDocumentCategoryStep);
@@ -305,14 +373,28 @@ function handleLogin(event) {
   event.preventDefault();
   const username = document.getElementById('loginUsername').value.trim();
   const password = document.getElementById('loginPassword').value;
+
+  setAuthStatus('loginStatus', '');
+
+  if (!username || username.length < 3) {
+    setAuthStatus('loginStatus', 'Informe um nome com pelo menos 3 caracteres.', true);
+    return;
+  }
+
+  if (!password || password.length < 6) {
+    setAuthStatus('loginStatus', 'Informe sua senha.', true);
+    return;
+  }
+
   const users = getUsers();
   const user = users.find(u => u.username === username && u.password === password);
 
   if (!user) {
-    alert('Usuário ou senha inválidos.');
+    setAuthStatus('loginStatus', 'Usuário ou senha inválidos.', true);
     return;
   }
 
+  setAuthStatus('loginStatus', 'Login realizado com sucesso.');
   setCurrentUser(user);
   showApp(user);
 }
@@ -332,16 +414,34 @@ function handleRegister(event) {
   event.preventDefault();
   const name = document.getElementById('registerName').value.trim();
   const password = document.getElementById('registerPassword').value;
+  const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
   const curso = document.getElementById('registerCurso').value;
 
+  setAuthStatus('registerStatus', '');
+
+  if (name.length < 3) {
+    setAuthStatus('registerStatus', 'Informe um nome com pelo menos 3 caracteres.', true);
+    return;
+  }
+
+  if (!isStrongPassword(password)) {
+    setAuthStatus('registerStatus', 'A senha não cumpre todos os requisitos.', true);
+    return;
+  }
+
+  if (password !== passwordConfirm) {
+    setAuthStatus('registerStatus', 'As senhas não conferem.', true);
+    return;
+  }
+
   if (!name || !password || !curso) {
-    alert('Preencha todos os campos.');
+    setAuthStatus('registerStatus', 'Preencha todos os campos obrigatórios.', true);
     return;
   }
 
   const users = getUsers();
-  if (users.find(u => u.name === name)) {
-    alert('Já existe um usuário com esse nome.');
+  if (users.find(u => String(u.name).toLowerCase() === name.toLowerCase())) {
+    setAuthStatus('registerStatus', 'Já existe um usuário com esse nome.');
     return;
   }
 
@@ -353,8 +453,75 @@ function handleRegister(event) {
 
   setCurrentUser(newUser);
   document.getElementById('registerForm').reset();
-  alert('Cadastro realizado com sucesso. Você entrou no portal.');
+  setAuthStatus('registerStatus', 'Cadastro realizado com sucesso.');
   showApp(newUser);
+}
+
+function togglePasswordVisibility(button) {
+  const targetId = button.dataset.target;
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  const shouldShow = target.type === 'password';
+  target.type = shouldShow ? 'text' : 'password';
+  button.classList.toggle('is-visible', shouldShow);
+  button.setAttribute('aria-label', shouldShow ? 'Ocultar senha' : 'Mostrar senha');
+  button.setAttribute('title', shouldShow ? 'Ocultar senha' : 'Mostrar senha');
+}
+
+function getPasswordRequirementState(password) {
+  const value = String(password || '');
+  return {
+    length: PASSWORD_REQUIREMENTS.length(value),
+    upper: PASSWORD_REQUIREMENTS.upper(value),
+    lower: PASSWORD_REQUIREMENTS.lower(value),
+    number: PASSWORD_REQUIREMENTS.number(value),
+    special: PASSWORD_REQUIREMENTS.special(value),
+    noSpaces: PASSWORD_REQUIREMENTS.noSpaces(value)
+  };
+}
+
+function updatePasswordRequirementsUI() {
+  const passwordInput = document.getElementById('registerPassword');
+  const confirmInput = document.getElementById('registerPasswordConfirm');
+  if (!passwordInput) return;
+
+  const status = getPasswordRequirementState(passwordInput.value);
+  const map = [
+    ['reqLength', status.length],
+    ['reqUpper', status.upper],
+    ['reqLower', status.lower],
+    ['reqNumber', status.number],
+    ['reqSpecial', status.special],
+    ['reqNoSpaces', status.noSpaces]
+  ];
+
+  map.forEach(([id, met]) => {
+    const item = document.getElementById(id);
+    if (!item) return;
+    item.classList.toggle('is-met', met);
+  });
+
+  passwordInput.setCustomValidity(isStrongPassword(passwordInput.value) ? '' : 'Senha não atende os requisitos.');
+  if (!confirmInput) return;
+
+  if (confirmInput.value && confirmInput.value !== passwordInput.value) {
+    confirmInput.setCustomValidity('As senhas não conferem.');
+  } else {
+    confirmInput.setCustomValidity('');
+  }
+}
+
+function setAuthStatus(statusId, message, isError = false) {
+  const status = document.getElementById(statusId);
+  if (!status) return;
+  status.textContent = message;
+  status.classList.toggle('is-error', isError);
+}
+
+function isStrongPassword(password) {
+  const status = getPasswordRequirementState(password);
+  return Object.values(status).every(Boolean);
 }
 
 function docFileName(tipo) {
@@ -427,14 +594,105 @@ function handleGeneralSubmit(event) {
   const user = getCurrentUser();
   if (!user) return;
 
-  const tipo = document.getElementById('tipoMensagem').value;
+  const tipoSelecionado = document.getElementById('tipoMensagem').value;
   const desc = document.getElementById('mensagemTexto').value.trim();
   if (!desc) return;
 
-  salvarSolicitacao({ tipo, descricao: desc, autoSolved: false });
+  const tipoSugerido = suggestMessageCategory(desc);
+  const tipo = tipoSelecionado === 'Auto' ? tipoSugerido : tipoSelecionado;
+
+  salvarSolicitacao({
+    tipo,
+    descricao: desc,
+    autoSolved: false,
+    triagemAutomatica: tipoSelecionado === 'Auto',
+    categoriaSugerida: tipoSugerido
+  });
 
   closeModal('modalGeral');
   document.getElementById('formGeral').reset();
+  updateMessageCategorySuggestion();
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function suggestMessageCategory(messageText) {
+  const text = normalizeText(messageText);
+  if (!text) return 'Dúvida';
+
+  // Regras de prioridade por intenção para evitar viés no fallback.
+  if ((MESSAGE_CATEGORY_PATTERNS['Acessibilidade'] || []).some(pattern => pattern.test(text))) {
+    return 'Acessibilidade';
+  }
+  if ((MESSAGE_CATEGORY_PATTERNS['Tecnológico'] || []).some(pattern => pattern.test(text))) {
+    return 'Tecnológico';
+  }
+  if ((MESSAGE_CATEGORY_PATTERNS['Reclamação'] || []).some(pattern => pattern.test(text))) {
+    return 'Reclamação';
+  }
+  if ((MESSAGE_CATEGORY_PATTERNS['Sugestão'] || []).some(pattern => pattern.test(text))) {
+    return 'Sugestão';
+  }
+  if ((MESSAGE_CATEGORY_PATTERNS['Dúvida'] || []).some(pattern => pattern.test(text))) {
+    return 'Dúvida';
+  }
+
+  let bestCategory = 'Dúvida';
+  let bestScore = 0;
+
+  Object.entries(MESSAGE_CATEGORY_KEYWORDS).forEach(([category, keywords]) => {
+    const score = keywords.reduce((sum, keyword) => {
+      return sum + (text.includes(normalizeText(keyword)) ? 1 : 0);
+    }, 0);
+
+    const patternScore = (MESSAGE_CATEGORY_PATTERNS[category] || []).reduce((sum, pattern) => {
+      return sum + (pattern.test(text) ? 2 : 0);
+    }, 0);
+
+    const combinedScore = score + patternScore;
+
+    if (combinedScore > bestScore) {
+      bestScore = combinedScore;
+      bestCategory = category;
+    }
+  });
+
+  if (bestScore === 0) {
+    if (/\?/.test(text)) return 'Dúvida';
+    if (/\b(nao|não)\s+consigo\b/.test(text)) return 'Tecnológico';
+    if (/\b(sugest|melhoria|ideia|idéia)\b/.test(text)) return 'Sugestão';
+    if (/\b(reclama|atraso|demora|ruim|pessimo|péssimo)\b/.test(text)) return 'Reclamação';
+    if (/\b(acessibilidade|libras|leitor de tela|teclado|contraste)\b/.test(text)) return 'Acessibilidade';
+  }
+
+  return bestCategory;
+}
+
+function updateMessageCategorySuggestion() {
+  const hint = document.getElementById('tipoMensagemHint');
+  const tipoSelect = document.getElementById('tipoMensagem');
+  const messageInput = document.getElementById('mensagemTexto');
+  if (!hint || !tipoSelect || !messageInput) return;
+
+  const text = messageInput.value.trim();
+  if (!text) {
+    hint.textContent = '';
+    hint.classList.remove('is-error');
+    return;
+  }
+
+  const suggested = suggestMessageCategory(text);
+  if (tipoSelect.value === 'Auto') {
+    hint.textContent = `Categoria sugerida: ${suggested}. Essa categoria será usada no envio.`;
+  } else {
+    hint.textContent = '';
+  }
+  hint.classList.remove('is-error');
 }
 
 function handleAdminResponse(event) {
@@ -481,7 +739,14 @@ function applyResponse(id, update) {
   renderRequests('listaMensagensAdmin', 'Mensagem', document.getElementById('filtroStatusMensagens')?.value ?? 'Pendente');
 }
 
-function salvarSolicitacao({ tipo, descricao, filePath = null, fileName = null }) {
+function salvarSolicitacao({
+  tipo,
+  descricao,
+  filePath = null,
+  fileName = null,
+  triagemAutomatica = false,
+  categoriaSugerida = null
+}) {
   const user = getCurrentUser();
   if (!user) return;
 
@@ -498,7 +763,9 @@ function salvarSolicitacao({ tipo, descricao, filePath = null, fileName = null }
     fileData: null,
     filePath,
     fileName,
-    responseAt: filePath ? new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : null
+    responseAt: filePath ? new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : null,
+    triagemAutomatica,
+    categoriaSugerida
   };
 
   requests.push(newRequest);
@@ -580,6 +847,7 @@ function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, status
       <td>
         <div>${r.descricao}</div>
         ${r.response ? `<div class="muted">Resposta: ${r.response}</div>` : ''}
+        ${r.triagemAutomatica ? `<div class="muted">Triagem automática: ${r.tipo}</div>` : ''}
       </td>
       <td class="status-${r.status.toLowerCase()}">${r.status}</td>
       <td>${renderActions(r, user)}</td>
@@ -969,6 +1237,79 @@ function handleCadastroSelectChange(select) {
   } else {
     form?.classList.add('hidden');
     enviarBtn?.classList.remove('hidden');
+  }
+}
+
+function formatCep(value) {
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 5) return digits;
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+}
+
+function setCepStatus(message, isError = false) {
+  const statusEl = document.getElementById('editCepStatus');
+  if (!statusEl) return;
+
+  statusEl.textContent = message;
+  statusEl.classList.toggle('is-error', isError);
+
+  if (cepStatusTimer) {
+    clearTimeout(cepStatusTimer);
+    cepStatusTimer = null;
+  }
+
+  if (message) {
+    cepStatusTimer = setTimeout(() => {
+      statusEl.textContent = '';
+      statusEl.classList.remove('is-error');
+      cepStatusTimer = null;
+    }, 3500);
+  }
+}
+
+function handleCepInput(event) {
+  event.target.value = formatCep(event.target.value);
+}
+
+async function handleCepLookup(event) {
+  const cep = String(event.target.value || '').replace(/\D/g, '');
+  if (cep.length !== 8) {
+    if (cep.length > 0) {
+      setCepStatus('CEP deve conter 8 dígitos.', true);
+    }
+    return;
+  }
+
+  if (cep === lastCepLookup) return;
+
+  setCepStatus('Buscando endereço...');
+
+  try {
+    const response = await fetch(`${CEP_LOOKUP_URL}/${cep}/json/`);
+    if (!response.ok) {
+      throw new Error('Falha na consulta de CEP.');
+    }
+
+    const data = await response.json();
+    if (data.erro) {
+      setCepStatus('CEP não encontrado.', true);
+      return;
+    }
+
+    const logradouro = document.getElementById('editLogradouro');
+    const bairro = document.getElementById('editBairro');
+    const cidade = document.getElementById('editCidade');
+    const estado = document.getElementById('editEstado');
+
+    if (logradouro) logradouro.value = data.logradouro || '';
+    if (bairro) bairro.value = data.bairro || '';
+    if (cidade) cidade.value = data.localidade || '';
+    if (estado) estado.value = data.uf || '';
+
+    lastCepLookup = cep;
+    setCepStatus('Endereço preenchido automaticamente.');
+  } catch (_) {
+    setCepStatus('Não foi possível consultar o CEP agora.', true);
   }
 }
 
