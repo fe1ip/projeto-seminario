@@ -616,11 +616,22 @@
                 <div id="stepCadastro" class="doc-step hidden">
                     <select id="cadastroSelect" onchange="handleCadastroSelectChange(this)">
                         <option value="">Escolha uma opção</option>
-                        <option value="Atualização de cadastro">Atualização de cadastro</option>
-                        <option value="Aproveitamento de estudos">Aproveitamento de estudos</option>
-                        <option value="Trancamento de matrícula">Trancamento de matrícula</option>
-                        <option value="Transferência de curso">Transferência de curso</option>
+                        <optgroup label="Documentos">
+                            <option value="Atestado de Matrícula">Atestado de Matrícula</option>
+                            <option value="Histórico Escolar">Histórico Escolar</option>
+                            <option value="Carteirinha de Estudante">Carteirinha de Estudante</option>
+                            <option value="Ementa de Disciplinas">Ementa de Disciplinas</option>
+                            <option value="Certificado de Conclusão">Certificado de Conclusão</option>
+                            <option value="Diploma">Diploma</option>
+                        </optgroup>
+                        <optgroup label="Requerimentos">
+                            <option value="Atualização de cadastro">Atualização de cadastro</option>
+                            <option value="Aproveitamento de estudos">Aproveitamento de estudos</option>
+                            <option value="Trancamento de matrícula">Trancamento de matrícula</option>
+                            <option value="Transferência de curso">Transferência de curso</option>
+                        </optgroup>
                     </select>
+                    <div id="cadastroFormDownload" class="doc-resultado hidden"></div>
                     <div id="atualizacaoCadastroForm" class="hidden">
                         <div class="form-section">
                             <h4 class="form-section-title">Dados pessoais</h4>

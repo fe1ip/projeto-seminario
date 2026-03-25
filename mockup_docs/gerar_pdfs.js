@@ -4,7 +4,7 @@ const path = require('path');
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const OUT_DIR = path.resolve(__dirname, '..', 'docs', 'felipe');
-const LOGO_SRC = path.resolve(__dirname, 'UniLogo3.png');
+const LOGO_SRC = path.resolve(__dirname, '..', 'UniLogoCor2.png');
 
 const ALUNO = 'Felipe';
 const CPF   = '000.000.000-00';
@@ -128,16 +128,16 @@ ______________________________<br>Secretário Acadêmico
   }
 ];
 
+if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
+
 let ok = 0;
 docs.forEach(({ file, html }) => {
   const htmlPath = path.join(OUT_DIR, file.replace('.pdf', '.html'));
   const pdfPath  = path.join(OUT_DIR, file);
-
   fs.writeFileSync(htmlPath, html, 'utf8');
-
   try {
     execSync(`"${CHROME}" --headless=new --no-sandbox --disable-gpu --print-to-pdf="${pdfPath}" "file:///${htmlPath.replace(/\\/g, '/')}" 2>NUL`, { stdio: 'pipe' });
-    fs.unlinkSync(htmlPath); // remove temp HTML
+    fs.unlinkSync(htmlPath);
     console.log(`✔ ${file}`);
     ok++;
   } catch (e) {

@@ -268,6 +268,8 @@ function showDocumentCategoryStep() {
   });
   document.getElementById('atualizacaoCadastroForm')?.classList.add('hidden');
   document.getElementById('cadastroEnviarBtn')?.classList.remove('hidden');
+  const cadastroDownload = document.getElementById('cadastroFormDownload');
+  if (cadastroDownload) { cadastroDownload.innerHTML = ''; cadastroDownload.classList.add('hidden'); }
   document.getElementById('modalDocumento')?.classList.remove('modal--wide');
 }
 
@@ -1369,35 +1371,76 @@ function handleMatriculaRemoveOption(event) {
   hideMatriculasContextMenu();
 }
 
-function handleCadastroSelectChange(select) {
-  const isAtualizar = select.value === 'Atualização de cadastro';
+async function handleCadastroSelectChange(select) {
+  const val = select.value;
+  const isAtualizar = val === 'Atualização de cadastro';
   const form = document.getElementById('atualizacaoCadastroForm');
   const enviarBtn = document.getElementById('cadastroEnviarBtn');
+  const downloadDiv = document.getElementById('cadastroFormDownload');
 
   document.getElementById('modalDocumento')?.classList.toggle('modal--wide', isAtualizar);
+
+  const STUDENT_DOCS = [
+    'Atestado de Matrícula',
+    'Histórico Escolar',
+    'Carteirinha de Estudante',
+    'Ementa de Disciplinas',
+    'Certificado de Conclusão',
+    'Diploma'
+  ];
+
+  const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/>
+    <line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>`;
+
+  form?.classList.add('hidden');
+  if (downloadDiv) { downloadDiv.innerHTML = ''; downloadDiv.classList.add('hidden'); }
 
   if (isAtualizar) {
     const user = getCurrentUser();
     if (user) {
-      document.getElementById('editNome').value       = user.name         || '';
-      document.getElementById('editCpf').value        = user.cpf          || '';
-      document.getElementById('editDataNasc').value   = user.dataNasc     || '';
-      document.getElementById('editSexo').value       = user.sexo         || '';
-      document.getElementById('editCurso').value      = user.curso        || '';
-      document.getElementById('editEmail').value      = user.email        || '';
-      document.getElementById('editTelefone').value   = user.telefone     || '';
-      document.getElementById('editCep').value        = user.cep          || '';
-      document.getElementById('editLogradouro').value = user.logradouro   || '';
-      document.getElementById('editNumero').value     = user.numero       || '';
-      document.getElementById('editComplemento').value= user.complemento  || '';
-      document.getElementById('editBairro').value     = user.bairro       || '';
-      document.getElementById('editCidade').value     = user.cidade       || '';
-      document.getElementById('editEstado').value     = user.estado       || '';
+      document.getElementById('editNome').value        = user.name         || '';
+      document.getElementById('editCpf').value         = user.cpf          || '';
+      document.getElementById('editDataNasc').value    = user.dataNasc     || '';
+      document.getElementById('editSexo').value        = user.sexo         || '';
+      document.getElementById('editCurso').value       = user.curso        || '';
+      document.getElementById('editEmail').value       = user.email        || '';
+      document.getElementById('editTelefone').value    = user.telefone     || '';
+      document.getElementById('editCep').value         = user.cep          || '';
+      document.getElementById('editLogradouro').value  = user.logradouro   || '';
+      document.getElementById('editNumero').value      = user.numero       || '';
+      document.getElementById('editComplemento').value = user.complemento  || '';
+      document.getElementById('editBairro').value      = user.bairro       || '';
+      document.getElementById('editCidade').value      = user.cidade       || '';
+      document.getElementById('editEstado').value      = user.estado       || '';
     }
     form?.classList.remove('hidden');
     enviarBtn?.classList.add('hidden');
+
+  } else if (STUDENT_DOCS.includes(val)) {
+    enviarBtn?.classList.add('hidden');
+    const user = getCurrentUser();
+    if (user && downloadDiv) {
+      const fileName = docFileName(val);
+      const filePath = `docs/${user.username}/${fileName}`;
+      try {
+        const res = await fetch(filePath, { method: 'HEAD' });
+        if (res.ok) {
+          downloadDiv.innerHTML = `✅ Documento disponível:
+            <a href="${filePath}" download="${fileName}">${svgIcon} ${fileName}</a>`;
+        } else {
+          downloadDiv.innerHTML = '⚠️ Documento ainda não disponível.';
+        }
+      } catch (_) {
+        downloadDiv.innerHTML = '⚠️ Documento ainda não disponível.';
+      }
+      downloadDiv.classList.remove('hidden');
+    }
+
   } else {
-    form?.classList.add('hidden');
     enviarBtn?.classList.remove('hidden');
   }
 }
