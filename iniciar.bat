@@ -17,9 +17,20 @@ if %errorlevel% neq 0 goto :downloadNode
 
 winget install --id OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements --silent
 if %errorlevel% == 0 (
+    echo  Aguardando Node.js ficar disponivel...
+    timeout /t 5 > nul
     for /f "tokens=*" %%i in ('where node 2^>nul') do set NODE_PATH=%%i
     if not defined NODE_PATH (
         set "PATH=%PATH%;%ProgramFiles%\nodejs"
+    )
+    node -v > nul 2>&1
+    if %errorlevel% neq 0 (
+        echo.
+        echo  AVISO: Node.js instalado mas nao detectado nesta sessao.
+        echo  Feche esta janela, abra um novo Prompt e rode iniciar.bat novamente.
+        echo.
+        pause
+        exit /b 1
     )
     goto :killOld
 )
@@ -37,9 +48,17 @@ if not exist "%INSTALLER%" (
     pause
     exit /b 1
 )
-msiexec /i "%INSTALLER%" /quiet /qn
-del "%INSTALLER%"
+msiexec /i "%INSTALLER%" /quiet /qn /norestart
+echo  Aguardando conclusao da instalacao...
+:waitNode
+timeout /t 3 > nul
+node -v > nul 2>&1
+if %errorlevel% neq 0 (
+    where node > nul 2>&1
+    if %errorlevel% neq 0 goto :waitNode
+)
 set "PATH=%PATH%;%ProgramFiles%\nodejs"
+del "%INSTALLER%"
 
 :: Encerra qualquer processo ja rodando na porta 3000
 :killOld
