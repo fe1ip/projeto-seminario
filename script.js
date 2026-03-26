@@ -509,6 +509,12 @@ function handleRegister(event) {
   users.push(newUser);
   saveUsers(users);
 
+  fetch('/generate-docs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, name, cpf: '', curso, matricula }),
+  }).catch(() => {}); // silencioso se o servidor não estiver rodando
+
   setCurrentUser(newUser);
   document.getElementById('registerForm').reset();
   setAuthStatus('registerStatus', 'Cadastro realizado com sucesso.');
@@ -665,25 +671,29 @@ async function handleDocumentSubmit(event) {
   const fileName = docFileName(requestedItem);
   const filePath = `docs/${user.username}/${fileName}`;
 
+  const svgDown = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/>
+    <line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>`;
+
+  const showDownload = () => {
+    salvarSolicitacao({ tipo: 'Documento', descricao: requestedItem, filePath, fileName });
+    document.getElementById('formDocumento').classList.add('hidden');
+    resultado.innerHTML = `✅ Documento disponível:
+      <a href="${filePath}" download="${fileName}">${svgDown} ${fileName}</a>`;
+    resultado.classList.remove('hidden');
+  };
+
+  if (window.location.protocol === 'file:') {
+    showDownload();
+    return;
+  }
+
   try {
     const res = await fetch(filePath, { method: 'HEAD' });
-    if (res.ok) {
-      salvarSolicitacao({ tipo: 'Documento', descricao: requestedItem, filePath, fileName });
-      document.getElementById('formDocumento').classList.add('hidden');
-      resultado.innerHTML = `
-        ✅ Documento disponível:
-        <a href="${filePath}" download="${fileName}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          ${fileName}
-        </a>`;
-      resultado.classList.remove('hidden');
-      return;
-    }
+    if (res.ok) { showDownload(); return; }
   } catch (_) {}
 
   salvarSolicitacao({ tipo: 'Documento', descricao: requestedItem });
@@ -1424,20 +1434,37 @@ async function handleCadastroSelectChange(select) {
     enviarBtn?.classList.add('hidden');
     const user = getCurrentUser();
     if (user && downloadDiv) {
-      const fileName = docFileName(val);
-      const filePath = `docs/${user.username}/${fileName}`;
-      try {
-        const res = await fetch(filePath, { method: 'HEAD' });
-        if (res.ok) {
-          downloadDiv.innerHTML = `✅ Documento disponível:
-            <a href="${filePath}" download="${fileName}">${svgIcon} ${fileName}</a>`;
+      if (user.role === 'admin') {
+        downloadDiv.innerHTML = 'ℹ️ Esta funcionalidade é exclusiva para alunos.';
+        downloadDiv.classList.remove('hidden');
+      } else {
+        const fileName = docFileName(val);
+        const filePath = `docs/${user.username}/${fileName}`;
+        const downloadLink = `✅ Documento disponível:
+          <a href="${filePath}" download="${fileName}">${svgIcon} ${fileName}</a>`;
+
+        if (window.location.protocol === 'file:') {
+          // Sem servidor: mostra link direto (fallback)
+          downloadDiv.innerHTML = downloadLink;
+          downloadDiv.classList.remove('hidden');
         } else {
-          downloadDiv.innerHTML = '⚠️ Documento ainda não disponível.';
+          try {
+            const res = await fetch(filePath, { method: 'HEAD' });
+            if (res.ok) {
+              downloadDiv.innerHTML = downloadLink;
+              downloadDiv.classList.remove('hidden');
+            } else {
+              downloadDiv.innerHTML = '';
+              downloadDiv.classList.add('hidden');
+              enviarBtn?.classList.remove('hidden');
+            }
+          } catch (_) {
+            downloadDiv.innerHTML = '';
+            downloadDiv.classList.add('hidden');
+            enviarBtn?.classList.remove('hidden');
+          }
         }
-      } catch (_) {
-        downloadDiv.innerHTML = '⚠️ Documento ainda não disponível.';
       }
-      downloadDiv.classList.remove('hidden');
     }
 
   } else {
@@ -1557,6 +1584,30 @@ function saveAtualizacaoCadastro() {
 
 function getUsers() {
   return JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
+}
+
+function exportStudentsJson() {
+  const alunos = getUsers()
+    .filter(u => u.role === 'aluno')
+    .map(u => ({
+      username:  u.username,
+      name:      u.name,
+      cpf:       u.cpf       || '000.000.000-00',
+      curso:     u.curso     || '',
+      matricula: u.matricula || ''
+    }));
+
+  if (!alunos.length) {
+    alert('Nenhum aluno cadastrado para exportar.');
+    return;
+  }
+
+  const blob = new Blob([JSON.stringify(alunos, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'students.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function getNotas(username) {
