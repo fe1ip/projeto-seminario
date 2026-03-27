@@ -919,11 +919,21 @@ function switchTab(viewId, tab) {
   if (btn) btn.classList.add('active');
 
   if (viewId === 'appView') {
+    if (tab === 'solicitacoes') {
+      const el = document.getElementById('buscaSolicitacoes');
+      if (el) el.value = '';
+    }
+    if (tab === 'mensagens') {
+      const el = document.getElementById('buscaMensagens');
+      if (el) el.value = '';
+    }
     if (tab === 'visao-geral')  renderVisaoGeral();
     if (tab === 'solicitacoes') renderRequests('listaSolicitacoes');
     if (tab === 'mensagens')    renderRequests('listaMensagens', 'Mensagem');
   } else {
     if (tab === 'solicitacoes') {
+      const el = document.getElementById('buscaSolicitacoesAdmin');
+      if (el) el.value = '';
       document.getElementById('filtroStatusSolicitacoes').value = 'Pendente';
       const filtroSetor = document.getElementById('filtroSetorSolicitacoes');
       if (filtroSetor && !filtroSetor.value && getUserSector() !== 'Administrador') {
@@ -932,6 +942,8 @@ function switchTab(viewId, tab) {
       renderAdminRequestsByFilters('solicitacoes');
     }
     if (tab === 'mensagens') {
+      const el = document.getElementById('buscaMensagensAdmin');
+      if (el) el.value = '';
       document.getElementById('filtroStatusMensagens').value = 'Pendente';
       const filtroSetor = document.getElementById('filtroSetorMensagens');
       if (filtroSetor && !filtroSetor.value && getUserSector() !== 'Administrador') {
@@ -974,6 +986,24 @@ function openResponseModal(requestId) {
   openModal('modalResposta');
 }
 
+function renderTotalizador(totalizadorId, allItems, filteredItems) {
+  const el = document.getElementById(totalizadorId);
+  if (!el) return;
+
+  const total     = allItems.length;
+  const concluido = allItems.filter(r => r.status === 'Concluído').length;
+  const pendente  = allItems.filter(r => r.status === 'Pendente').length;
+  const mostrando = filteredItems.length;
+  const buscaAtiva = mostrando < total;
+
+  el.innerHTML = `
+    <span class="total-chip total-chip--all">📋 Total: <strong>${total}</strong></span>
+    <span class="total-chip total-chip--pendente">🕐 Pendentes: <strong>${pendente}</strong></span>
+    <span class="total-chip total-chip--concluido">✅ Concluídos: <strong>${concluido}</strong></span>
+    ${buscaAtiva ? `<span class="total-chip total-chip--filtro">🔎 Exibindo: <strong>${mostrando}</strong></span>` : ''}
+  `;
+}
+
 function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, statusFilter = null, setorFilter = '') {
   const user = getCurrentUser();
   if (!user) return;
@@ -1000,6 +1030,48 @@ function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, status
   if (setorFilter) {
     filtered = filtered.filter(r => getRequestSector(r) === setorFilter || r.setorResponsavel === setorFilter);
   }
+
+  // Filtro de busca textual
+  const searchInputId = tbodyId === 'listaSolicitacoes'     ? 'buscaSolicitacoes'
+                      : tbodyId === 'listaSolicitacoesAdmin' ? 'buscaSolicitacoesAdmin'
+                      : tbodyId === 'listaMensagens'         ? 'buscaMensagens'
+                      :                                        'buscaMensagensAdmin';
+
+  const totalizadorId = tbodyId === 'listaSolicitacoes'     ? 'totalSolicitacoes'
+                      : tbodyId === 'listaSolicitacoesAdmin' ? 'totalSolicitacoesAdmin'
+                      : tbodyId === 'listaMensagens'         ? 'totalMensagens'
+                      :                                        'totalMensagensAdmin';
+
+  const searchQuery = normalizeText(document.getElementById(searchInputId)?.value ?? '');
+  if (searchQuery) {
+    filtered = filtered.filter(r => {
+      const setor = getRequestAssignedSector(r);
+      const haystack = normalizeText([
+        r.createdAt,
+        r.studentName,
+        r.username,
+        r.tipo,
+        r.descricao,
+        r.status,
+        setor,
+        r.response ?? ''
+      ].join(' '));
+      return haystack.includes(searchQuery);
+    });
+  }
+
+  // Totalizador: base sem filtro de busca (reflete status reais do conjunto filtrado por setor/status)
+  const allForTotal = (() => {
+    let base = user.role === 'admin'
+      ? getRequests().slice()
+      : getRequests().filter(r => r.username === user.username);
+    if (tipoFilter === 'Documento') base = base.filter(r => r.tipo === 'Documento');
+    else if (tipoFilter === 'Mensagem') base = base.filter(r => r.tipo !== 'Documento');
+    if (statusFilter) base = base.filter(r => r.status === statusFilter);
+    if (setorFilter) base = base.filter(r => getRequestSector(r) === setorFilter || r.setorResponsavel === setorFilter);
+    return base;
+  })();
+  renderTotalizador(totalizadorId, allForTotal, filtered);
 
   filtered.forEach(r => {
     const setor = getRequestAssignedSector(r);
@@ -1633,6 +1705,13 @@ function getNotas(username) {
   };
 }
 
+function getGreeting(name) {
+  const hour = new Date().getHours();
+  const period = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+  const firstName = name.trim().split(' ')[0];
+  return `${period}, ${firstName}!`;
+}
+
 function renderVisaoGeral() {
   const user = getCurrentUser();
   if (!user) return;
@@ -1642,6 +1721,10 @@ function renderVisaoGeral() {
   const aprovadas = disciplinas.filter(d => d.situacao === 'Aprovado').length;
 
   document.getElementById('visaoGeralContent').innerHTML = `
+    <div class="visao-saudacao">
+      <span class="visao-saudacao-texto">${getGreeting(user.name)}</span>
+      <span class="visao-saudacao-sub">Aqui está um resumo da sua situação acadêmica.</span>
+    </div>
     <div class="cadastro-card">
       <div class="cadastro-avatar" style="background:${getAvatarColor(user.name)}">${getInitials(user.name)}</div>
       <div class="cadastro-info">

@@ -380,6 +380,11 @@
                         <h2>Minhas Solicitações</h2>
                         <button type="button" id="btnSolicitar" class="btn btn-primary small">📄 Solicitar</button>
                     </div>
+                    <div class="totalizador-bar" id="totalSolicitacoes"></div>
+                    <div class="search-bar-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="search" id="buscaSolicitacoes" class="search-bar" placeholder="Buscar por data, tipo, descrição ou status..." oninput="renderRequests('listaSolicitacoes')" autocomplete="off">
+                    </div>
                     <table>
                         <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
                         <tbody id="listaSolicitacoes"></tbody>
@@ -392,6 +397,11 @@
                         <div class="tab-header-actions">
                             <button id="btnDuvidas" class="btn btn-secondary small">💬 Dúvidas, Sugestões ou Reclamações</button>
                         </div>
+                    </div>
+                    <div class="totalizador-bar" id="totalMensagens"></div>
+                    <div class="search-bar-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="search" id="buscaMensagens" class="search-bar" placeholder="Buscar por data, tipo, descrição ou status..." oninput="renderRequests('listaMensagens', 'Mensagem')" autocomplete="off">
                     </div>
                     <table>
                         <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
@@ -429,6 +439,11 @@
                             </select>
                         </div>
                     </div>
+                    <div class="totalizador-bar" id="totalSolicitacoesAdmin"></div>
+                    <div class="search-bar-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="search" id="buscaSolicitacoesAdmin" class="search-bar" placeholder="Buscar por data, aluno, tipo, descrição ou status..." oninput="renderAdminRequestsByFilters('solicitacoes')" autocomplete="off">
+                    </div>
                     <table>
                         <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
                         <tbody id="listaSolicitacoesAdmin"></tbody>
@@ -452,6 +467,11 @@
                                 <option value="">Todos</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="totalizador-bar" id="totalMensagensAdmin"></div>
+                    <div class="search-bar-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="search" id="buscaMensagensAdmin" class="search-bar" placeholder="Buscar por data, aluno, tipo, descrição ou status..." oninput="renderAdminRequestsByFilters('mensagens')" autocomplete="off">
                     </div>
                     <table>
                         <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
