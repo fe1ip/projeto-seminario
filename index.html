@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -622,17 +622,21 @@
                         <button type="button" id="matriculasEditOption">Editar matrícula</button>
                         <button type="button" id="matriculasRemoveOption">Remover matrícula</button>
                     </div>
-                    <button type="submit" class="btn btn-primary small">Enviar Solicitação</button>
+                    <button type="submit" id="btnAcademicoEnviar" class="btn btn-primary small hidden">Enviar Solicitação</button>
                 </div>
                 <div id="stepFinanceiro" class="doc-step hidden">
-                    <select id="financeiroSelect">
-                        <option value="">Escolha uma opção</option>
-                        <option value="2ª via de boleto">2ª via de boleto</option>
-                        <option value="Comprovante de pagamento">Comprovante de pagamento</option>
-                        <option value="Declaração de quitação">Declaração de quitação</option>
-                        <option value="Negociação de mensalidade">Negociação de mensalidade</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary small">Enviar Solicitação</button>
+                    <div class="tipo-buttons" style="grid-template-columns: repeat(2, 1fr);">
+                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="2ª via de boleto" onclick="selectFinanceiroOption(this)">📄 2ª via de boleto</button>
+                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="Comprovante de pagamento" onclick="selectFinanceiroOption(this)">🧾 Comprovante</button>
+                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="Declaração de quitação" onclick="selectFinanceiroOption(this)">📜 Declaração Anual</button>
+                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="Negociação de mensalidade" onclick="selectFinanceiroOption(this)">🤝 Negociação</button>
+                    </div>
+                    <input type="hidden" id="financeiroSelect">
+                    
+                    <div id="financeiroDynamicArea" class="hidden" style="margin-top: 1rem; background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 6px;">
+                    </div>
+
+                    <button type="submit" id="btnFinanceiroEnviar" class="btn btn-primary small hidden" style="margin-top: 1rem;">Continuar</button>
                 </div>
                 <div id="stepCadastro" class="doc-step hidden">
                     <select id="cadastroSelect" onchange="handleCadastroSelectChange(this)">

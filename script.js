@@ -1,4 +1,4 @@
-﻿const STORAGE_USERS = 'portal_users';
+const STORAGE_USERS = 'portal_users';
 const STORAGE_CURRENT = 'portal_currentUser';
 const STORAGE_REQUESTS = 'portal_requests';
 const STORAGE_NOTAS = 'portal_notas';
@@ -665,6 +665,62 @@ async function handleDocumentSubmit(event) {
       return;
     }
     requestedItem = selectedRequest;
+
+    if (requestedItem === 'Rematrícula') {
+      const checkboxes = document.querySelectorAll('.rematricula-checkbox:checked');
+      if (checkboxes.length === 0) {
+        alert('Selecione pelo menos uma disciplina para a rematrícula.');
+        return;
+      }
+      const selecionadas = Array.from(checkboxes).map(cb => cb.value).join(', ');
+      requestedItem = `Rematrícula - Disciplinas: ${selecionadas}`;
+    }
+
+    if (tipo === 'Financeiro') {
+      const resultado = document.getElementById('docResultado');
+      
+      if (requestedItem === '2ª via de boleto') {
+        const mes = document.getElementById('finMes')?.value || 'atual';
+        document.getElementById('formDocumento').classList.add('hidden');
+        resultado.innerHTML = `
+          <div style="background: white; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-align: center;">
+            <h3 style="margin-top: 0;">Fatura de ${mes}</h3>
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;">Valor a pagar: <strong style="color: var(--accent);">R$ 850,00</strong></p>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem;">PIX Copia e Cola:</p>
+            <div style="background: #f4f4f4; padding: 1rem; border: 1px dashed #ccc; font-family: monospace; word-break: break-all; font-size: 0.9rem;">
+              00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865405850.005802BR5913FACULDADE...
+            </div>
+            <button type="button" class="btn btn-secondary small" style="margin-top: 1rem;" onclick="alert('Código PIX copiado com sucesso!')">Copiar PIX</button>
+          </div>
+        `;
+        resultado.classList.remove('hidden');
+        return;
+      }
+
+      if (requestedItem === 'Declaração de quitação') {
+        const fileName = docFileName(requestedItem);
+        document.getElementById('formDocumento').classList.add('hidden');
+        resultado.innerHTML = `✅ Declaração gerada com sucesso!
+          <a href="#" onclick="alert('Download de PDF simulado com sucesso!'); return false;" style="display: block; margin-top: 10px; color: #15803d; font-weight: bold;">📥 ${fileName}</a>`;
+        resultado.classList.remove('hidden');
+        salvarSolicitacao({ tipo: tipo, descricao: 'Emissão de Declaração de Quitação Automática', isDocumento: true });
+        return;
+      }
+
+      if (requestedItem === 'Comprovante de pagamento') {
+        const mes = document.getElementById('finMes')?.value || 'atual';
+        requestedItem = `Comprovante de pagamento - Referente a ${mes}`;
+      }
+
+      if (requestedItem === 'Negociação de mensalidade') {
+        const proposta = document.getElementById('finProposta')?.value || '';
+        if (!proposta.trim()) {
+          alert('Por favor, informe a sua proposta e motivo na caixa de texto.');
+          return;
+        }
+        requestedItem = `Negociação de mensalidade - Proposta/Motivo: ${proposta}`;
+      }
+    }
   }
 
   const resultado = document.getElementById('docResultado');
@@ -679,7 +735,7 @@ async function handleDocumentSubmit(event) {
   </svg>`;
 
   const showDownload = () => {
-    salvarSolicitacao({ tipo: 'Documento', descricao: requestedItem, filePath, fileName });
+    salvarSolicitacao({ tipo: tipo, descricao: requestedItem, filePath, fileName, isDocumento: true });
     document.getElementById('formDocumento').classList.add('hidden');
     resultado.innerHTML = `✅ Documento disponível:
       <a href="${filePath}" download="${fileName}">${svgDown} ${fileName}</a>`;
@@ -696,7 +752,7 @@ async function handleDocumentSubmit(event) {
     if (res.ok) { showDownload(); return; }
   } catch (_) {}
 
-  salvarSolicitacao({ tipo: 'Documento', descricao: requestedItem });
+  salvarSolicitacao({ tipo: tipo, descricao: requestedItem, isDocumento: true });
   closeModal('modalDocumento');
   resetDocumentModalState();
 }
@@ -857,7 +913,8 @@ function salvarSolicitacao({
   filePath = null,
   fileName = null,
   triagemAutomatica = false,
-  categoriaSugerida = null
+  categoriaSugerida = null,
+  isDocumento = false
 }) {
   const user = getCurrentUser();
   if (!user) return;
@@ -879,7 +936,8 @@ function salvarSolicitacao({
     responseAt: filePath ? new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : null,
     triagemAutomatica,
     categoriaSugerida,
-    setorResponsavel
+    setorResponsavel,
+    isDocumento
   };
 
   requests.push(newRequest);
@@ -1018,9 +1076,9 @@ function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, status
     : requests.filter(r => r.username === user.username).sort((a,b) => b.id - a.id);
 
   if (tipoFilter === 'Documento') {
-    filtered = filtered.filter(r => r.tipo === 'Documento');
+    filtered = filtered.filter(r => r.tipo === 'Documento' || r.isDocumento || ['Acadêmico', 'Financeiro', 'Cadastro'].includes(r.tipo));
   } else if (tipoFilter === 'Mensagem') {
-    filtered = filtered.filter(r => r.tipo !== 'Documento');
+    filtered = filtered.filter(r => !(r.tipo === 'Documento' || r.isDocumento || ['Acadêmico', 'Financeiro', 'Cadastro'].includes(r.tipo)));
   }
 
   if (statusFilter) {
@@ -1065,8 +1123,8 @@ function renderRequests(tbodyId = 'listaSolicitacoes', tipoFilter = null, status
     let base = user.role === 'admin'
       ? getRequests().slice()
       : getRequests().filter(r => r.username === user.username);
-    if (tipoFilter === 'Documento') base = base.filter(r => r.tipo === 'Documento');
-    else if (tipoFilter === 'Mensagem') base = base.filter(r => r.tipo !== 'Documento');
+    if (tipoFilter === 'Documento') base = base.filter(r => r.tipo === 'Documento' || r.isDocumento || ['Acadêmico', 'Financeiro', 'Cadastro'].includes(r.tipo));
+    else if (tipoFilter === 'Mensagem') base = base.filter(r => !(r.tipo === 'Documento' || r.isDocumento || ['Acadêmico', 'Financeiro', 'Cadastro'].includes(r.tipo)));
     if (statusFilter) base = base.filter(r => r.status === statusFilter);
     if (setorFilter) base = base.filter(r => getRequestSector(r) === setorFilter || r.setorResponsavel === setorFilter);
     return base;
@@ -1307,12 +1365,57 @@ function selectTipo(btn) {
   }
 }
 
+function selectFinanceiroOption(btn) {
+  document.querySelectorAll('.financeiro-option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const selectedValue = btn.dataset.value;
+  document.getElementById('financeiroSelect').value = selectedValue;
+  
+  const dynamicArea = document.getElementById('financeiroDynamicArea');
+  const btnEnviar = document.getElementById('btnFinanceiroEnviar');
+  
+  dynamicArea.innerHTML = '';
+  dynamicArea.classList.remove('hidden');
+  btnEnviar.classList.remove('hidden');
+
+  if (selectedValue === '2ª via de boleto' || selectedValue === 'Comprovante de pagamento') {
+    dynamicArea.innerHTML = `
+      <label for="finMes">Mês de Referência:</label>
+      <select id="finMes" style="width: 100%; margin-top: 5px; margin-bottom: 15px;">
+        <option value="Janeiro">Janeiro</option>
+        <option value="Fevereiro">Fevereiro</option>
+        <option value="Março">Março</option>
+        <option value="Abril">Abril</option>
+        <option value="Maio" selected>Maio</option>
+        <option value="Junho">Junho</option>
+      </select>
+    `;
+    btnEnviar.textContent = selectedValue === '2ª via de boleto' ? 'Gerar Boleto/PIX' : 'Emitir Comprovante';
+  } else if (selectedValue === 'Negociação de mensalidade') {
+    dynamicArea.innerHTML = `
+      <label for="finProposta">Sua proposta de valor e motivo:</label>
+      <textarea id="finProposta" rows="3" style="width: 100%; margin-top: 5px; margin-bottom: 15px;" placeholder="Ex: Gostaria de parcelar o débito de Abril em 2x..."></textarea>
+    `;
+    btnEnviar.textContent = 'Enviar Proposta';
+  } else if (selectedValue === 'Declaração de quitação') {
+    dynamicArea.innerHTML = `
+      <p style="margin:0 0 15px 0; font-size: 0.9rem; color: var(--muted);">Será gerada uma declaração automática de quitação de débitos do ano vigente.</p>
+    `;
+    btnEnviar.textContent = 'Baixar Declaração';
+  }
+}
+
 function selectMatriculaOption(btn) {
   document.querySelectorAll('.matricula-option-btn').forEach(optionBtn => optionBtn.classList.remove('selected'));
   btn.classList.add('selected');
   const selectedValue = btn.dataset.value;
   document.getElementById('matriculasSelect').value = selectedValue;
   hideMatriculasContextMenu();
+
+  const btnEnviar = document.getElementById('btnAcademicoEnviar');
+  if (btnEnviar) {
+    btnEnviar.classList.toggle('hidden', selectedValue !== 'Rematrícula');
+  }
 
   if (selectedValue === 'Ver matrículas') {
     const user = getCurrentUser();
@@ -1323,9 +1426,17 @@ function selectMatriculaOption(btn) {
 
   if (selectedValue === 'Disciplinas disponíveis') {
     const user = getCurrentUser();
-    const matriculadas = user ? getNotas(user.username).disciplinas.map(d => d.nome) : [];
+    const matriculadas = user ? getNotas(user.username).disciplinas.map(d => typeof d === 'string' ? d : d.nome) : [];
     const disponiveis = CATALOG_DISCIPLINAS.filter(d => !matriculadas.includes(d.nome));
     renderDisciplinasDisponiveis(disponiveis);
+    return;
+  }
+
+  if (selectedValue === 'Rematrícula') {
+    const user = getCurrentUser();
+    const matriculadas = user ? getNotas(user.username).disciplinas.map(d => typeof d === 'string' ? d : d.nome) : [];
+    const disponiveis = CATALOG_DISCIPLINAS.filter(d => !matriculadas.includes(d.nome));
+    renderRematricula(disponiveis);
     return;
   }
 
@@ -1392,6 +1503,37 @@ function renderDisciplinasDisponiveis(disciplinas) {
         </div>
       </label>
     `).join('')}
+  `;
+  preview.classList.remove('hidden');
+}
+
+function renderRematricula(disciplinas) {
+  const preview = document.getElementById('matriculasPreview');
+  if (!preview) return;
+
+  if (!disciplinas.length) {
+    preview.innerHTML = '<span class="matricula-preview-label">Nenhuma disciplina disponível para rematrícula.</span>';
+    preview.classList.remove('hidden');
+    return;
+  }
+
+  preview.innerHTML = `
+    <span class="matricula-preview-label">Selecione as disciplinas para a rematrícula:</span>
+    <div style="margin-top: 10px;">
+    ${disciplinas.map(d => {
+      const isRequired = d.categoria === 'Obrigatória';
+      return `
+      <label class="matricula-preview-item" data-nome="${d.nome}" data-categoria="${d.categoria}" style="cursor: pointer;">
+        <div class="matricula-preview-row" style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" class="rematricula-checkbox" value="${d.nome}" ${isRequired ? 'checked onclick="return false;" title="Disciplinas obrigatórias não podem ser desmarcadas"' : ''}>
+          <input type="text" value="${d.nome}" readonly style="cursor: pointer; flex: 1;">
+          <span class="matricula-category-badge ${isRequired ? 'is-required' : 'is-optional'}">${d.categoria}</span>
+          <span class="matricula-carga">${d.cargaHoraria}</span>
+        </div>
+      </label>
+      `;
+    }).join('')}
+    </div>
   `;
   preview.classList.remove('hidden');
 }
@@ -1695,12 +1837,12 @@ function getNotas(username) {
     };
   }
   return {
-    semestre: '2026.1',
+    semestre: '2026.1 (Em andamento)',
     disciplinas: [
       { nome: 'Algoritmos',          cargaHoraria: '80h',  nota: 9.0, situacao: 'Aprovado', categoria: 'Obrigatória' },
       { nome: 'Cálculo I',           cargaHoraria: '60h',  nota: 7.5, situacao: 'Aprovado', categoria: 'Obrigatória' },
-      { nome: 'Estrutura de Dados',  cargaHoraria: '100h', nota: 8.8, situacao: 'Aprovado', categoria: 'Opcional' },
-      { nome: 'Física I',            cargaHoraria: '60h',  nota: 7, situacao: 'Aprovado', categoria: 'Opcional' },
+      { nome: 'Estrutura de Dados',  cargaHoraria: '100h', nota: '-', situacao: 'Cursando', categoria: 'Obrigatória' },
+      { nome: 'Física I',            cargaHoraria: '60h',  nota: '-', situacao: 'Cursando', categoria: 'Opcional' },
     ]
   };
 }
@@ -1717,7 +1859,8 @@ function renderVisaoGeral() {
   if (!user) return;
   const { semestre, disciplinas } = getNotas(user.username);
   const total    = disciplinas.length;
-  const media    = total ? (disciplinas.reduce((s, d) => s + d.nota, 0) / total).toFixed(1) : '—';
+  const notasValidas = disciplinas.filter(d => typeof d.nota === 'number');
+  const media    = notasValidas.length ? (notasValidas.reduce((s, d) => s + d.nota, 0) / notasValidas.length).toFixed(1) : '—';
   const aprovadas = disciplinas.filter(d => d.situacao === 'Aprovado').length;
 
   document.getElementById('visaoGeralContent').innerHTML = `
@@ -1757,7 +1900,7 @@ function renderVisaoGeral() {
           <tr>
             <td>${d.nome}</td>
             <td>${d.cargaHoraria}</td>
-            <td>${d.nota.toFixed(1)}</td>
+            <td>${typeof d.nota === 'number' ? d.nota.toFixed(1) : d.nota}</td>
             <td class="${d.situacao === 'Aprovado' ? 'status-concluido' : 'status-pendente'}">${d.situacao}</td>
           </tr>`).join('')}
       </tbody>
