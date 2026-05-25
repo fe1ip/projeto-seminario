@@ -413,11 +413,41 @@ function setDefaultAdminSectorFilters(user = getCurrentUser()) {
   if (filtroMensagens) filtroMensagens.value = defaultValue;
 }
 
+let adminViewMode = 'lista';
+
+function setAdminViewMode(mode) {
+    adminViewMode = mode;
+    const btnKanban = document.getElementById('btnViewKanban');
+    const btnLista = document.getElementById('btnViewLista');
+    const board = document.getElementById('kanbanBoard');
+    const table = document.getElementById('tabelaSolicitacoesAdmin');
+    const statusFilter = document.getElementById('filtroStatusSolicitacoes');
+
+    if (mode === 'kanban') {
+        btnKanban.classList.replace('btn-outline', 'btn-primary');
+        btnLista.classList.replace('btn-primary', 'btn-outline');
+        if (board) board.classList.remove('hidden');
+        if (table) table.classList.add('hidden');
+        if (statusFilter) statusFilter.classList.add('hidden');
+    } else {
+        btnLista.classList.replace('btn-outline', 'btn-primary');
+        btnKanban.classList.replace('btn-primary', 'btn-outline');
+        if (table) table.classList.remove('hidden');
+        if (board) board.classList.add('hidden');
+        if (statusFilter) statusFilter.classList.remove('hidden');
+    }
+    renderAdminRequestsByFilters('solicitacoes');
+}
+
 function renderAdminRequestsByFilters(tab) {
   if (tab === 'solicitacoes') {
-    const status = document.getElementById('filtroStatusSolicitacoes')?.value ?? 'Pendente';
     const setor = document.getElementById('filtroSetorSolicitacoes')?.value ?? getDefaultSectorFilterValue();
-    renderRequests('listaSolicitacoesAdmin', 'Documento', status, setor);
+    if (adminViewMode === 'kanban') {
+        renderKanbanBoard(setor);
+    } else {
+        const status = document.getElementById('filtroStatusSolicitacoes')?.value ?? '';
+        renderRequests('listaSolicitacoesAdmin', 'Documento', status, setor);
+    }
     return;
   }
 
@@ -1210,6 +1240,138 @@ function getAvatarColor(name) {
   return palette[hash % palette.length];
 }
 
+// ==========================================
+// KANBAN BOARD LOGIC (ADMIN VIEW)
+// ==========================================
+function renderKanbanBoard(setorFilter = null) {
+  const user = getCurrentUser();
+  if (!user || user.role !== 'admin') return;
+
+  const requests = getRequests();
+  
+  // Base filters: We only want Documento, Acadêmico, Financeiro, Cadastro for the Kanban Board
+  let filtered = requests.slice().filter(r => 
+    r.tipo === 'Documento' || r.isDocumento || ['Acadêmico', 'Financeiro', 'Cadastro'].includes(r.tipo)
+  );
+
+  // Sector filter
+  if (setorFilter) {
+    filtered = filtered.filter(r => getRequestSector(r) === setorFilter || r.setorResponsavel === setorFilter);
+  }
+
+  // Search filter
+  const searchQuery = normalizeText(document.getElementById('buscaSolicitacoesAdmin')?.value ?? '');
+  if (searchQuery) {
+    filtered = filtered.filter(r => {
+      const setor = getRequestAssignedSector(r);
+      const haystack = normalizeText([
+        r.createdAt, r.studentName, r.username, r.tipo,
+        r.descricao, r.status, setor
+      ].join(' '));
+      return haystack.includes(searchQuery);
+    });
+  }
+
+  // Clear columns
+  const colPendente = document.querySelector('#kanban-Pendente .kanban-column-content');
+  const colAnalise = document.querySelector('#kanban-Analise .kanban-column-content');
+  const colConcluido = document.querySelector('#kanban-Concluido .kanban-column-content');
+  
+  if (colPendente) colPendente.innerHTML = '';
+  if (colAnalise) colAnalise.innerHTML = '';
+  if (colConcluido) colConcluido.innerHTML = '';
+
+  // Distribute cards
+  filtered.sort((a,b) => b.id - a.id).forEach(r => {
+    const setor = getRequestAssignedSector(r);
+    const canManage = canManageRequest(user, r);
+    
+    const card = document.createElement('div');
+    card.className = 'kanban-card';
+    // Only draggable if the user can manage it
+    if (canManage) {
+      card.draggable = true;
+      card.addEventListener('dragstart', (e) => drag(e, r.id));
+      card.addEventListener('dragend', (e) => card.classList.remove('dragging'));
+    }
+    card.id = `kanban-card-${r.id}`;
+
+    card.innerHTML = `
+      <div class="kanban-card-header">
+        <span>#${r.id} • ${r.createdAt.substring(0, 10)}</span>
+        <span class="status-${r.status.toLowerCase()}">${r.status}</span>
+      </div>
+      <div class="kanban-card-title">${r.tipo}</div>
+      <div class="kanban-card-desc">
+        <strong>Aluno:</strong> ${r.studentName} (${r.username})<br>
+        ${r.descricao.length > 50 ? r.descricao.substring(0,50) + '...' : r.descricao}
+      </div>
+      <div class="kanban-card-actions">
+        ${canManage ? `<button class="btn btn-primary btn-sm" onclick="openResponseModal(${r.id})">Detalhes / Responder</button>` : `<span class="muted">Somente visualização</span>`}
+      </div>
+    `;
+
+    if (r.status === 'Pendente' && colPendente) colPendente.appendChild(card);
+    else if (r.status === 'Em Análise' && colAnalise) colAnalise.appendChild(card);
+    else if (colConcluido) colConcluido.appendChild(card);
+  });
+
+  renderTotalizador('totalSolicitacoesAdmin', requests.filter(r => r.tipo === 'Documento' || r.isDocumento || ['Acadêmico', 'Financeiro', 'Cadastro'].includes(r.tipo)), filtered);
+}
+
+// Drag and Drop native functions
+function allowDrop(ev) {
+  ev.preventDefault();
+  const col = ev.target.closest('.kanban-column');
+  if (col) col.classList.add('drag-over');
+}
+
+function drag(ev, requestId) {
+  ev.dataTransfer.setData("text/plain", requestId);
+  ev.target.classList.add('dragging');
+}
+
+function drop(ev, newStatus) {
+  ev.preventDefault();
+  
+  // Remove drag-over class from all columns
+  document.querySelectorAll('.kanban-column').forEach(col => col.classList.remove('drag-over'));
+
+  const requestIdStr = ev.dataTransfer.getData("text/plain");
+  if (!requestIdStr) return;
+  const requestId = parseInt(requestIdStr, 10);
+
+  const requests = getRequests();
+  const requestIndex = requests.findIndex(r => r.id === requestId);
+  if (requestIndex === -1) return;
+
+  const request = requests[requestIndex];
+  
+  // Validate if admin can manage this
+  const user = getCurrentUser();
+  if (!canManageRequest(user, request)) {
+    alert("Você não tem permissão para alterar o status desta solicitação.");
+    return;
+  }
+
+  // Update status
+  if (request.status !== newStatus) {
+    request.status = newStatus;
+    
+    // Auto-reply context if moved to completed without a response
+    if (newStatus === 'Concluído' && !request.response) {
+      request.response = "Solicitação concluída através do painel de triagem Kanban.";
+      request.respondedBy = user.username;
+      request.respondedAt = new Date().toISOString();
+    }
+
+    saveRequests(requests);
+    renderAdminRequestsByFilters('solicitacoes');
+    
+    // Optional: simulate notification toast here
+  }
+}
+
 function openAccountDialog(role) {
   const modalId = role === 'admin' ? 'modalFuncionarios' : 'modalAlunos';
   const listId  = role === 'admin' ? 'listaFuncionarios' : 'listaAlunos';
@@ -1652,6 +1814,13 @@ async function handleCadastroSelectChange(select) {
         downloadDiv.innerHTML = 'ℹ️ Esta funcionalidade é exclusiva para alunos.';
         downloadDiv.classList.remove('hidden');
       } else {
+        if (val === 'Atestado de Matrícula') {
+          downloadDiv.innerHTML = `✅ Documento disponível prono para impressão ou salvamento:<br>
+            <button type="button" class="btn btn-primary" style="margin-top: 15px; width: 100%;" onclick="gerarAtestadoPDF()">🖨️ Imprimir / Salvar PDF</button>`;
+          downloadDiv.classList.remove('hidden');
+          return;
+        }
+
         const fileName = docFileName(val);
         const filePath = `docs/${user.username}/${fileName}`;
         const downloadLink = `✅ Documento disponível:
@@ -1930,3 +2099,155 @@ function getRequests() {
 function saveRequests(requests) {
   localStorage.setItem(STORAGE_REQUESTS, JSON.stringify(requests));
 }
+
+function selectCadastroOption(btn) {
+  document.querySelectorAll('.cadastro-option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const val = btn.dataset.value;
+  const select = document.getElementById('cadastroSelect');
+  select.value = val;
+  handleCadastroSelectChange(select);
+}
+
+function toggleAltoContraste() {
+  document.body.classList.toggle('alto-contraste');
+  const isAltoContraste = document.body.classList.contains('alto-contraste');
+  localStorage.setItem('alto-contraste', isAltoContraste ? 'true' : 'false');
+}
+
+let fontSizeOffset = 0;
+function mudarTamanhoFonte(step) {
+  fontSizeOffset += step;
+  if (fontSizeOffset > 5) fontSizeOffset = 5;
+  if (fontSizeOffset < -2) fontSizeOffset = -2;
+  
+  // Base font size is 16px (1rem = 16px on root html)
+  document.documentElement.style.fontSize = (16 + (fontSizeOffset * 2)) + 'px';
+  localStorage.setItem('font-size-offset', fontSizeOffset);
+}
+
+// Restore accessibility settings on load
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('alto-contraste') === 'true') {
+    document.body.classList.add('alto-contraste');
+  }
+  const savedFontOffset = localStorage.getItem('font-size-offset');
+  if (savedFontOffset !== null) {
+    fontSizeOffset = parseInt(savedFontOffset, 10);
+    document.documentElement.style.fontSize = (16 + (fontSizeOffset * 2)) + 'px';
+  }
+});
+
+function gerarAtestadoPDF() {
+    const user = getCurrentUser();
+    if (!user) return;
+    
+    document.getElementById('printAlunoNome').textContent = user.name || 'Aluno';
+    document.getElementById('printAlunoRA').textContent = user.username || 'N/A';
+    
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('printDate').textContent = formattedDate;
+    
+    // Trigger print dialog
+    window.print();
+}
+
+// ==========================================
+// CHATBOT LOGIC
+// ==========================================
+
+const chatFlow = {
+    start: {
+        text: "Olá! Sou o assistente virtual da UniFictícia. Como posso te ajudar hoje?",
+        options: [
+            { text: "Ver minhas notas", next: "notas" },
+            { text: "Solicitar documento", next: "docs" },
+            { text: "Problemas de acesso", next: "acesso" }
+        ]
+    },
+    notas: {
+        text: "Para ver suas notas, basta acessar a aba 'Visão Geral' no menu esquerdo principal. Lá você verá o boletim totalmente atualizado.",
+        options: [
+            { text: "Voltar ao início", next: "start" }
+        ]
+    },
+    docs: {
+        text: "Você pode emitir Atestados em PDF e solicitar Históricos diretamente na aba 'Solicitações' > 'Documentos'. É na hora!",
+        options: [
+            { text: "Voltar ao início", next: "start" }
+        ]
+    },
+    acesso: {
+        text: "Se você esqueceu sua senha, clique em 'Funcionários' na tela de login inicial e procure o RH, ou vá até a Secretaria Acadêmica com um documento original com foto.",
+        options: [
+            { text: "Voltar ao início", next: "start" }
+        ]
+    }
+};
+
+function initChatbot() {
+    const toggle = document.getElementById('chatbotToggle');
+    const windowEl = document.getElementById('chatbotWindow');
+    const close = document.getElementById('chatbotClose');
+    const body = document.getElementById('chatbotBody');
+
+    if (!toggle || !windowEl) return;
+
+    toggle.addEventListener('click', () => {
+        windowEl.classList.remove('hidden');
+        if (body.children.length === 0) {
+            renderChatNode('start');
+        }
+    });
+
+    close.addEventListener('click', () => {
+        windowEl.classList.add('hidden');
+    });
+}
+
+function renderChatNode(nodeId) {
+    const body = document.getElementById('chatbotBody');
+    const node = chatFlow[nodeId];
+    if (!node) return;
+
+    // Remove existing options from previous message to keep flow clean
+    const existingOptions = body.querySelectorAll('.chat-options');
+    existingOptions.forEach(el => el.remove());
+
+    // Add bot message
+    const msgEl = document.createElement('div');
+    msgEl.className = 'chat-msg bot';
+    msgEl.textContent = node.text;
+    body.appendChild(msgEl);
+
+    // Add options
+    if (node.options && node.options.length > 0) {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'chat-options';
+        
+        node.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'chat-option-btn';
+            btn.textContent = opt.text;
+            btn.onclick = () => {
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'chat-msg user';
+                userMsg.textContent = opt.text;
+                optionsDiv.replaceWith(userMsg); // Replace options with user's choice
+                
+                // Simulate typing delay
+                setTimeout(() => renderChatNode(opt.next), 500);
+            };
+            optionsDiv.appendChild(btn);
+        });
+        body.appendChild(optionsDiv);
+    }
+
+    body.scrollTop = body.scrollHeight;
+}
+
+// Initialize Chatbot when DOM loads
+document.addEventListener('DOMContentLoaded', initChatbot);
+

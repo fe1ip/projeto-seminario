@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -425,6 +425,10 @@
                     <div class="tab-header">
                         <h2>Solicitações dos Alunos</h2>
                         <div class="tab-header-actions">
+                            <div class="view-toggle">
+                                <button type="button" class="btn btn-sm btn-primary" id="btnViewLista" onclick="setAdminViewMode('lista')">≡ Lista</button>
+                                <button type="button" class="btn btn-sm btn-outline" id="btnViewKanban" onclick="setAdminViewMode('kanban')">◫ Kanban</button>
+                            </div>
                             <select id="filtroSetorSolicitacoes" class="filter-select" onchange="renderAdminRequestsByFilters('solicitacoes')">
                                 <option value="">Todos os setores</option>
                                 <option value="Administrativo">Administrativo</option>
@@ -434,6 +438,7 @@
                             </select>
                             <select id="filtroStatusSolicitacoes" class="filter-select" onchange="renderAdminRequestsByFilters('solicitacoes')">
                                 <option value="Pendente">Pendentes</option>
+                                <option value="Em Análise">Em Análise</option>
                                 <option value="Concluído">Concluídos</option>
                                 <option value="">Todos</option>
                             </select>
@@ -444,7 +449,21 @@
                         <span class="search-icon">🔍</span>
                         <input type="search" id="buscaSolicitacoesAdmin" class="search-bar" placeholder="Buscar por data, aluno, tipo, descrição ou status..." oninput="renderAdminRequestsByFilters('solicitacoes')" autocomplete="off">
                     </div>
-                    <table>
+                    <div id="kanbanBoard" class="kanban-board hidden">
+                        <div class="kanban-column" id="kanban-Pendente" ondragover="allowDrop(event)" ondrop="drop(event, 'Pendente')">
+                            <h3 class="kanban-column-title">Pendentes</h3>
+                            <div class="kanban-column-content"></div>
+                        </div>
+                        <div class="kanban-column" id="kanban-Analise" ondragover="allowDrop(event)" ondrop="drop(event, 'Em Análise')">
+                            <h3 class="kanban-column-title">Em Análise</h3>
+                            <div class="kanban-column-content"></div>
+                        </div>
+                        <div class="kanban-column" id="kanban-Concluido" ondragover="allowDrop(event)" ondrop="drop(event, 'Concluído')">
+                            <h3 class="kanban-column-title">Concluídos</h3>
+                            <div class="kanban-column-content"></div>
+                        </div>
+                    </div>
+                    <table id="tabelaSolicitacoesAdmin">
                         <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
                         <tbody id="listaSolicitacoesAdmin"></tbody>
                     </table>
@@ -541,6 +560,7 @@
 
     <div id="modalFuncionarioCadastro" class="modal">
         <div class="modal-content">
+            <button type="button" class="modal-back-arrow" onclick="closeModal('modalFuncionarioCadastro'); openModal('modalFuncionarios');" aria-label="Voltar">&#8592;</button>
             <button class="close" type="button" onclick="closeModal('modalFuncionarioCadastro')">&times;</button>
             <h2>Cadastro de Funcionário</h2>
             <form id="employeeRegisterForm">
@@ -639,24 +659,25 @@
                     <button type="submit" id="btnFinanceiroEnviar" class="btn btn-primary small hidden" style="margin-top: 1rem;">Continuar</button>
                 </div>
                 <div id="stepCadastro" class="doc-step hidden">
-                    <select id="cadastroSelect" onchange="handleCadastroSelectChange(this)">
-                        <option value="">Escolha uma opção</option>
-                        <optgroup label="Documentos">
-                            <option value="Atestado de Matrícula">Atestado de Matrícula</option>
-                            <option value="Histórico Escolar">Histórico Escolar</option>
-                            <option value="Carteirinha de Estudante">Carteirinha de Estudante</option>
-                            <option value="Ementa de Disciplinas">Ementa de Disciplinas</option>
-                            <option value="Certificado de Conclusão">Certificado de Conclusão</option>
-                            <option value="Diploma">Diploma</option>
-                        </optgroup>
-                        <optgroup label="Requerimentos">
-                            <option value="Atualização de cadastro">Atualização de cadastro</option>
-                            <option value="Aproveitamento de estudos">Aproveitamento de estudos</option>
-                            <option value="Trancamento de matrícula">Trancamento de matrícula</option>
-                            <option value="Transferência de curso">Transferência de curso</option>
-                        </optgroup>
-                    </select>
-                    <div id="cadastroFormDownload" class="doc-resultado hidden"></div>
+                    <h4 style="margin: 0 0 10px 0; font-size: 1rem;">Documentos (Emissão Automática)</h4>
+                    <div class="tipo-buttons" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 20px;">
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Atestado de Matrícula" onclick="selectCadastroOption(this)">Atestado de Matrícula</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Histórico Escolar" onclick="selectCadastroOption(this)">Histórico Escolar</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Carteirinha de Estudante" onclick="selectCadastroOption(this)">Carteirinha</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Certificado de Conclusão" onclick="selectCadastroOption(this)">Certificado</button>
+                    </div>
+
+                    <h4 style="margin: 0 0 10px 0; font-size: 1rem;">Requerimentos</h4>
+                    <div class="tipo-buttons" style="grid-template-columns: repeat(2, 1fr);">
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Atualização de cadastro" onclick="selectCadastroOption(this)">Atualização de Cadastro</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Aproveitamento de estudos" onclick="selectCadastroOption(this)">Aproveitamento de Estudos</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Trancamento de matrícula" onclick="selectCadastroOption(this)">Trancamento</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Transferência de curso" onclick="selectCadastroOption(this)">Transferência</button>
+                    </div>
+                    
+                    <input type="hidden" id="cadastroSelect">
+
+                    <div id="cadastroFormDownload" class="doc-resultado hidden" style="margin-top: 15px;"></div>
                     <div id="atualizacaoCadastroForm" class="hidden">
                         <div class="form-section">
                             <h4 class="form-section-title">Dados pessoais</h4>
@@ -830,6 +851,67 @@
         </div>
     </div>
 
+    <!-- Acessibilidade: Controle de Contraste e Fonte -->
+    <div class="acessibilidade-panel">
+        <button type="button" class="btn-acessibilidade" onclick="toggleAltoContraste()" title="Alto Contraste">🌗</button>
+        <button type="button" class="btn-acessibilidade" onclick="mudarTamanhoFonte(1)" title="Aumentar Fonte">A+</button>
+        <button type="button" class="btn-acessibilidade" onclick="mudarTamanhoFonte(-1)" title="Diminuir Fonte">A-</button>
+    </div>
+
+    <!-- Acessibilidade: VLibras Widget -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
     <script src="script.js?v=20260325b"></script>
+    
+    <!-- PDF Layout for Atestado (Hidden on screen, Visible on print) -->
+    <div id="printDocument" class="print-container">
+        <div class="print-header">
+            <img src="UniLogoCor2.png" alt="Logo Universidade UniFictícia" style="max-height: 80px; margin-bottom: 10px;">
+            <div class="print-logo" style="margin-top: 10px;">UNIVERSIDADE UNIFICTÍCIA</div>
+            <div class="print-title">Atestado de Matrícula</div>
+        </div>
+        <div class="print-body">
+            <p>Atestamos para os devidos fins que o aluno(a) <strong id="printAlunoNome"></strong>, portador(a) do RA <strong id="printAlunoRA"></strong>, encontra-se regularmente matriculado(a) nesta instituição de ensino superior no semestre letivo atual.</p>
+            <p>Este documento possui validade oficial e sua autenticidade pode ser verificada em nosso portal eletrônico através do código de autenticação: <strong>LC-2026-X8Y9-PDF</strong>.</p>
+            
+            <div class="print-signatures">
+                <div>
+                    <hr>
+                    <p>Secretaria Acadêmica<br>Universidade Low Code</p>
+                </div>
+            </div>
+        </div>
+        <div class="print-footer">
+            <p>Documento gerado eletronicamente em <span id="printDate"></span>.</p>
+        </div>
+    </div>
+    
+    <!-- Chatbot Virtual Assistant -->
+    <div class="chatbot-wrapper">
+        <button id="chatbotToggle" class="chatbot-toggle" aria-label="Abrir assistente virtual">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </button>
+        
+        <div id="chatbotWindow" class="chatbot-window hidden">
+            <div class="chatbot-header">
+                <div class="chatbot-title">
+                    <span>🤖</span> Assistente
+                </div>
+                <button id="chatbotClose" class="chatbot-close">&times;</button>
+            </div>
+            <div id="chatbotBody" class="chatbot-body">
+                <!-- Messages will appear here -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
