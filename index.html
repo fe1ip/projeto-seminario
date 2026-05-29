@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal do Aluno - Universidade UniFictícia</title>
+    <title>Portal do Aluno - Universidade</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header class="header-transparent">
         <div class="header-inner">
             <div class="header-brand">
-                <img src="UniLogo3.png" alt="Logo Universidade UniFictícia" class="header-logo">
+                <img src="UniLogo3.png" alt="Logo Universidade" class="header-logo">
                 <div>
-                    <h1>Universidade UniFictícia</h1>
+                    <h1>Universidade</h1>
                     <p>Portal de Solicitações e Atendimento ao Aluno</p>
                 </div>
             </div>
-            <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Abrir menu" style="display:none; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Abrir menu"
+                style="display:none; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
             </button>
             <nav id="authNav" class="nav-dropdown">
                 <button class="dropdown-toggle">Entrar ▼</button>
@@ -31,9 +41,11 @@
             </nav>
 
             <nav id="profileNav" class="nav-dropdown profile-nav" hidden>
-                <button type="button" id="profileToggle" class="profile-toggle" aria-label="Abrir menu do perfil" title="Perfil">
+                <button type="button" id="profileToggle" class="profile-toggle" aria-label="Abrir menu do perfil"
+                    title="Perfil">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
+                        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z">
+                        </path>
                     </svg>
                 </button>
                 <ul class="dropdown-menu">
@@ -76,9 +88,12 @@
         <section class="hero-section">
             <div class="hero-content animate-on-scroll">
                 <h2>O Futuro da Sua Carreira Começa Aqui</h2>
-                <p>Descubra cursos inovadores, metodologias ativas e um ambiente que prepara você para os desafios do mercado de trabalho e para a vida.</p>
+                <p>Descubra cursos inovadores, metodologias ativas e um ambiente que prepara você para os desafios do
+                    mercado de trabalho e para a vida.</p>
                 <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="document.getElementById('section-cursos').scrollIntoView({behavior: 'smooth'})">Ver Cursos</button>
+                    <button class="btn btn-primary"
+                        onclick="document.getElementById('section-cursos').scrollIntoView({behavior: 'smooth'})">Ver
+                        Cursos</button>
                     <button class="btn btn-secondary" onclick="openAccountDialog('aluno')">Acesse o Portal</button>
                 </div>
             </div>
@@ -94,7 +109,8 @@
                     <div class="slide-caption">
                         <span class="slide-tag">Acadêmico</span>
                         <h3>Apresentação de Projetos — Final do Semestre</h3>
-                        <p>Alunos apresentaram seus projetos de conclusão de curso para uma banca de professores e convidados.</p>
+                        <p>Alunos apresentaram seus projetos de conclusão de curso para uma banca de professores e
+                            convidados.</p>
                     </div>
                 </div>
                 <div class="slide">
@@ -102,7 +118,8 @@
                     <div class="slide-caption">
                         <span class="slide-tag">Ciência</span>
                         <h3>Experimentos no Laboratório de Química</h3>
-                        <p>Estudantes realizaram práticas experimentais supervisionadas no laboratório de química da universidade.</p>
+                        <p>Estudantes realizaram práticas experimentais supervisionadas no laboratório de química da
+                            universidade.</p>
                     </div>
                 </div>
                 <div class="slide">
@@ -110,7 +127,8 @@
                     <div class="slide-caption">
                         <span class="slide-tag">Cultura</span>
                         <h3>Clube de Leitura — Semana do Conhecimento</h3>
-                        <p>A iniciativa reuniu alunos de diferentes cursos para debater obras literárias e científicas.</p>
+                        <p>A iniciativa reuniu alunos de diferentes cursos para debater obras literárias e científicas.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -152,59 +170,110 @@
                 </div>
                 <div class="cursos-grid">
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg></div>
                         <span class="curso-area-tag">Tecnologia</span>
                         <h3 class="curso-card-title">Ciência da Computação</h3>
                         <p class="curso-card-desc">Algoritmos, sistemas e fundamentos da computação moderna.</p>
                         <div class="curso-card-meta"><span>8 semestres</span><span>Bacharelado</span></div>
                     </div>
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                                </path>
+                            </svg></div>
                         <span class="curso-area-tag">Tecnologia</span>
                         <h3 class="curso-card-title">Engenharia de Software</h3>
                         <p class="curso-card-desc">Desenvolvimento, qualidade e gestão de sistemas de software.</p>
                         <div class="curso-card-meta"><span>8 semestres</span><span>Bacharelado</span></div>
                     </div>
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                            </svg></div>
                         <span class="curso-area-tag">Tecnologia</span>
                         <h3 class="curso-card-title">Sistemas de Informação</h3>
                         <p class="curso-card-desc">Integração entre tecnologia, gestão e processos organizacionais.</p>
                         <div class="curso-card-meta"><span>8 semestres</span><span>Bacharelado</span></div>
                     </div>
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg></div>
                         <span class="curso-area-tag">Negócios</span>
                         <h3 class="curso-card-title">Administração</h3>
                         <p class="curso-card-desc">Gestão empresarial, liderança e estratégia organizacional.</p>
                         <div class="curso-card-meta"><span>8 semestres</span><span>Bacharelado</span></div>
                     </div>
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                                <path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                                <path d="M7 21h10"></path>
+                                <path d="M12 3v18"></path>
+                                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+                            </svg></div>
                         <span class="curso-area-tag">Humanas</span>
                         <h3 class="curso-card-title">Direito</h3>
-                        <p class="curso-card-desc">Legislação, justiça e cidadania com visão crítica do mundo jurídico.</p>
+                        <p class="curso-card-desc">Legislação, justiça e cidadania com visão crítica do mundo jurídico.
+                        </p>
                         <div class="curso-card-meta"><span>10 semestres</span><span>Bacharelado</span></div>
                     </div>
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg></div>
                         <span class="curso-area-tag">Saúde</span>
                         <h3 class="curso-card-title">Medicina</h3>
                         <p class="curso-card-desc">Formação médica humanista com base científica e clínica sólida.</p>
                         <div class="curso-card-meta"><span>12 semestres</span><span>Bacharelado</span></div>
                     </div>
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg></div>
                         <span class="curso-area-tag">Engenharia</span>
                         <h3 class="curso-card-title">Engenharia Civil</h3>
-                        <p class="curso-card-desc">Projetos, estruturas e infraestrutura para o desenvolvimento urbano.</p>
+                        <p class="curso-card-desc">Projetos, estruturas e infraestrutura para o desenvolvimento urbano.
+                        </p>
                         <div class="curso-card-meta"><span>10 semestres</span><span>Bacharelado</span></div>
                     </div>
                     <div class="curso-card">
-                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                        <div class="curso-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg></div>
                         <span class="curso-area-tag">Saúde</span>
                         <h3 class="curso-card-title">Psicologia</h3>
-                        <p class="curso-card-desc">Comportamento humano, saúde mental e intervenção clínica e social.</p>
+                        <p class="curso-card-desc">Comportamento humano, saúde mental e intervenção clínica e social.
+                        </p>
                         <div class="curso-card-meta"><span>10 semestres</span><span>Bacharelado</span></div>
                     </div>
                 </div>
@@ -217,18 +286,24 @@
                     <h2 class="section-title">Calendário Acadêmico</h2>
                     <p>Principais datas e eventos do semestre 2026/1</p>
                 </div>
-                
+
                 <div class="landing-calendar-toggle-area">
-                    <button type="button" class="landing-calendar-view-toggle-btn active" id="btnLandingCalendarGrid" onclick="setLandingCalendarView('grid')">📅 Grade Mensal</button>
-                    <button type="button" class="landing-calendar-view-toggle-btn" id="btnLandingCalendarList" onclick="setLandingCalendarView('list')">📋 Lista de Eventos</button>
+                    <button type="button" class="landing-calendar-view-toggle-btn active" id="btnLandingCalendarGrid"
+                        onclick="setLandingCalendarView('grid')">📅 Grade Mensal</button>
+                    <button type="button" class="landing-calendar-view-toggle-btn" id="btnLandingCalendarList"
+                        onclick="setLandingCalendarView('list')">📋 Lista de Eventos</button>
                 </div>
 
                 <!-- Controles do mês na Landing Page (visíveis apenas na grade) -->
-                <div class="calendar-controls-header" id="landingCalendarControls" style="border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; background: #ffffff;">
+                <div class="calendar-controls-header" id="landingCalendarControls"
+                    style="border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; background: #ffffff;">
                     <div class="calendar-nav-buttons" style="margin: 0 auto;">
-                        <button type="button" class="calendar-nav-btn" onclick="navigateLandingCalendarMonth(-1)">◀ Anterior</button>
-                        <span id="landingCalendarMonthTitle" class="calendar-current-month-title" style="font-size: 1.1rem; min-width: 150px;">Maio 2026</span>
-                        <button type="button" class="calendar-nav-btn" onclick="navigateLandingCalendarMonth(1)">Próximo ▶</button>
+                        <button type="button" class="calendar-nav-btn" onclick="navigateLandingCalendarMonth(-1)">◀
+                            Anterior</button>
+                        <span id="landingCalendarMonthTitle" class="calendar-current-month-title"
+                            style="font-size: 1.1rem; min-width: 150px;">Maio 2026</span>
+                        <button type="button" class="calendar-nav-btn" onclick="navigateLandingCalendarMonth(1)">Próximo
+                            ▶</button>
                     </div>
                 </div>
 
@@ -250,28 +325,36 @@
             <div class="container">
                 <div class="section-header">
                     <h2 class="section-title">O que dizem nossos alunos</h2>
-                    <p>Histórias reais de quem faz parte da UniFictícia</p>
+                    <p>Histórias reais de quem faz parte da Faculdade</p>
                 </div>
                 <div class="depoimentos-grid">
                     <div class="depoimento-card">
-                        <p class="depoimento-texto">"A UniFictícia me proporcionou uma formação sólida e conexões incríveis com o mercado de trabalho. Os professores são excepcionais e sempre dispostos a ajudar."</p>
+                        <p class="depoimento-texto">"A Faculdade me proporcionou uma formação sólida e conexões
+                            incríveis com o mercado de trabalho. Os professores são excepcionais e sempre dispostos a
+                            ajudar."</p>
                         <div class="depoimento-autor">
                             <div class="depoimento-avatar" style="background:#0078d4;">AN</div>
-                            <div><span class="depoimento-nome">Ana Nascimento</span><span class="depoimento-curso">Ciência da Computação — 8º semestre</span></div>
+                            <div><span class="depoimento-nome">Ana Nascimento</span><span
+                                    class="depoimento-curso">Ciência da Computação — 8º semestre</span></div>
                         </div>
                     </div>
                     <div class="depoimento-card">
-                        <p class="depoimento-texto">"Escolher a UniFictícia foi a melhor decisão da minha vida. A estrutura do campus e o suporte ao aluno fazem toda a diferença na jornada acadêmica."</p>
+                        <p class="depoimento-texto">"Escolher a Faculdade foi a melhor decisão da minha vida. A
+                            estrutura do campus e o suporte ao aluno fazem toda a diferença na jornada acadêmica."</p>
                         <div class="depoimento-autor">
                             <div class="depoimento-avatar" style="background:#107c10;">RS</div>
-                            <div><span class="depoimento-nome">Rafael Santos</span><span class="depoimento-curso">Engenharia Civil — 6º semestre</span></div>
+                            <div><span class="depoimento-nome">Rafael Santos</span><span
+                                    class="depoimento-curso">Engenharia Civil — 6º semestre</span></div>
                         </div>
                     </div>
                     <div class="depoimento-card">
-                        <p class="depoimento-texto">"O curso de Psicologia aqui vai muito além da teoria. As práticas supervisionadas e os projetos de extensão me prepararam para o mercado de forma completa."</p>
+                        <p class="depoimento-texto">"O curso de Psicologia aqui vai muito além da teoria. As práticas
+                            supervisionadas e os projetos de extensão me prepararam para o mercado de forma completa."
+                        </p>
                         <div class="depoimento-autor">
                             <div class="depoimento-avatar" style="background:#8764b8;">CM</div>
-                            <div><span class="depoimento-nome">Carla Mendes</span><span class="depoimento-curso">Psicologia — 9º semestre</span></div>
+                            <div><span class="depoimento-nome">Carla Mendes</span><span
+                                    class="depoimento-curso">Psicologia — 9º semestre</span></div>
                         </div>
                     </div>
                 </div>
@@ -284,16 +367,23 @@
             <h2>Login no Portal</h2>
             <form id="loginForm" autocomplete="off">
                 <label for="loginUsername">Nome</label>
-                <input id="loginUsername" required autocomplete="username" minlength="3" placeholder="Digite seu nome de usuário">
+                <input id="loginUsername" required autocomplete="username" minlength="3"
+                    placeholder="Digite seu nome de usuário">
                 <label for="loginPassword">Senha</label>
                 <div class="password-field">
-                    <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Digite sua senha">
-                    <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Mostrar senha" title="Mostrar senha">
+                    <input id="loginPassword" type="password" required autocomplete="current-password"
+                        placeholder="Digite sua senha">
+                    <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Mostrar senha"
+                        title="Mostrar senha">
                         <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                            <path
+                                d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z">
+                            </path>
                         </svg>
                         <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                            <path
+                                d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z">
+                            </path>
                         </svg>
                     </button>
                 </div>
@@ -316,13 +406,19 @@
                 <input id="registerName" required autocomplete="name" minlength="3" placeholder="Nome completo">
                 <label for="registerPassword">Senha</label>
                 <div class="password-field">
-                    <input id="registerPassword" type="password" required autocomplete="new-password" minlength="8" placeholder="Crie uma senha forte">
-                    <button type="button" class="password-toggle" data-target="registerPassword" aria-label="Mostrar senha" title="Mostrar senha">
+                    <input id="registerPassword" type="password" required autocomplete="new-password" minlength="8"
+                        placeholder="Crie uma senha forte">
+                    <button type="button" class="password-toggle" data-target="registerPassword"
+                        aria-label="Mostrar senha" title="Mostrar senha">
                         <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                            <path
+                                d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z">
+                            </path>
                         </svg>
                         <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                            <path
+                                d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z">
+                            </path>
                         </svg>
                     </button>
                 </div>
@@ -336,17 +432,24 @@
                 </ul>
                 <label for="registerPasswordConfirm">Confirmar senha</label>
                 <div class="password-field">
-                    <input id="registerPasswordConfirm" type="password" required autocomplete="new-password" minlength="8" placeholder="Repita sua senha">
-                    <button type="button" class="password-toggle" data-target="registerPasswordConfirm" aria-label="Mostrar senha" title="Mostrar senha">
+                    <input id="registerPasswordConfirm" type="password" required autocomplete="new-password"
+                        minlength="8" placeholder="Repita sua senha">
+                    <button type="button" class="password-toggle" data-target="registerPasswordConfirm"
+                        aria-label="Mostrar senha" title="Mostrar senha">
                         <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                            <path
+                                d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z">
+                            </path>
                         </svg>
                         <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                            <path
+                                d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z">
+                            </path>
                         </svg>
                     </button>
                 </div>
-                <small class="auth-help">A senha só será aceita quando todos os requisitos acima forem atendidos.</small>
+                <small class="auth-help">A senha só será aceita quando todos os requisitos acima forem
+                    atendidos.</small>
                 <label for="registerCurso">Curso</label>
                 <select id="registerCurso" required>
                     <option value="">Selecione um curso</option>
@@ -363,7 +466,8 @@
             </form>
 
             <div class="button-group">
-                <button id="backToRegisterLanding" class="btn btn-secondary small" onclick="showLanding()">Voltar</button>
+                <button id="backToRegisterLanding" class="btn btn-secondary small"
+                    onclick="showLanding()">Voltar</button>
                 <button form="registerForm" type="submit" class="btn btn-primary">Cadastrar</button>
             </div>
         </section>
@@ -372,9 +476,14 @@
     <main id="appView" hidden>
         <div class="app-layout">
             <aside class="sidebar">
-                <button type="button" class="sidebar-item" data-view="appView" data-tab="visao-geral">🏠 Visão geral</button>
-                <button type="button" class="sidebar-item active" data-view="appView" data-tab="solicitacoes">📋 Solicitações</button>
-                <button type="button" class="sidebar-item" data-view="appView" data-tab="mensagens">💬 Mensagens</button>
+                <button type="button" class="sidebar-item" data-view="appView" data-tab="visao-geral">🏠 Visão
+                    geral</button>
+                <button type="button" class="sidebar-item active" data-view="appView" data-tab="solicitacoes">📋
+                    Solicitações</button>
+                <button type="button" class="sidebar-item" data-view="appView" data-tab="mensagens">💬
+                    Mensagens</button>
+                <button type="button" class="sidebar-item" data-view="appView" data-tab="ia" id="btnSidebarIaAluno">🤖
+                    Assistente IA</button>
             </aside>
 
             <div class="app-content">
@@ -394,10 +503,21 @@
                     <div class="totalizador-bar" id="totalSolicitacoes"></div>
                     <div class="search-bar-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="search" id="buscaSolicitacoes" class="search-bar" placeholder="Buscar por data, tipo, descrição ou status..." oninput="renderRequests('listaSolicitacoes')" autocomplete="off">
+                        <input type="search" id="buscaSolicitacoes" class="search-bar"
+                            placeholder="Buscar por data, tipo, descrição ou status..."
+                            oninput="renderRequests('listaSolicitacoes')" autocomplete="off">
                     </div>
-                    <table>
-                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                    <table id="tableMinhasSolicitacoes">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Aluno</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
                         <tbody id="listaSolicitacoes"></tbody>
                     </table>
                 </section>
@@ -406,18 +526,54 @@
                     <div class="tab-header">
                         <h2>Mensagens</h2>
                         <div class="tab-header-actions">
-                            <button id="btnDuvidas" class="btn btn-secondary small">💬 Dúvidas, Sugestões ou Reclamações</button>
+                            <button id="btnDuvidas" class="btn btn-secondary small">💬 Dúvidas, Sugestões ou
+                                Reclamações</button>
                         </div>
                     </div>
                     <div class="totalizador-bar" id="totalMensagens"></div>
                     <div class="search-bar-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="search" id="buscaMensagens" class="search-bar" placeholder="Buscar por data, tipo, descrição ou status..." oninput="renderRequests('listaMensagens', 'Mensagem')" autocomplete="off">
+                        <input type="search" id="buscaMensagens" class="search-bar"
+                            placeholder="Buscar por data, tipo, descrição ou status..."
+                            oninput="renderRequests('listaMensagens', 'Mensagem')" autocomplete="off">
                     </div>
                     <table>
-                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Aluno</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
                         <tbody id="listaMensagens"></tbody>
                     </table>
+                </section>
+
+                <section id="appTab-ia" class="tab-panel" hidden>
+                    <div class="tab-header">
+                        <h2>🤖 Assistente IA (Aluno)</h2>
+                    </div>
+                    <div id="chatWrapperAluno">
+                        <div class="chat-container" id="chatContainerAluno">
+                            <div class="chat-history" id="chatHistoryAluno"></div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chatInputAluno"
+                                    placeholder="Pergunte sobre calendário, matrículas ou criar solicitações..."
+                                    autocomplete="off">
+                                <button id="btnSendChatAluno" class="btn btn-primary btn-icon-send" aria-label="Enviar"
+                                    title="Enviar">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>
@@ -426,10 +582,17 @@
     <main id="adminView" hidden>
         <div class="app-layout">
             <aside class="sidebar">
-                <button type="button" class="sidebar-item active" data-view="adminView" data-tab="solicitacoes">📋 Solicitações de alunos</button>
-                <button type="button" class="sidebar-item" data-view="adminView" data-tab="mensagens">💬 Mensagens de alunos</button>
-                <button type="button" class="sidebar-item" data-view="adminView" data-tab="calendario">📅 Calendário Acadêmico</button>
-                <button type="button" class="sidebar-item" onclick="exportStudentsJson()" title="Baixa students.json para gerar PDFs com node mockup_docs/gerar_pdfs.js">📥 Exportar alunos (students.json)</button>
+                <button type="button" class="sidebar-item active" data-view="adminView" data-tab="solicitacoes">📋
+                    Solicitações de alunos</button>
+                <button type="button" class="sidebar-item" data-view="adminView" data-tab="mensagens">💬 Mensagens de
+                    alunos</button>
+                <button type="button" class="sidebar-item" data-view="adminView" data-tab="calendario">📅 Calendário
+                    Acadêmico</button>
+                <button type="button" class="sidebar-item" onclick="exportStudentsJson()"
+                    title="Baixa students.json para gerar PDFs com node mockup_docs/gerar_pdfs.js">📥 Exportar alunos
+                    (students.json)</button>
+                <button type="button" class="sidebar-item" data-view="adminView" data-tab="ia" id="btnSidebarIaAdmin">🤖
+                    Copiloto IA</button>
             </aside>
 
             <div class="app-content">
@@ -438,17 +601,21 @@
                         <h2>Solicitações dos Alunos</h2>
                         <div class="tab-header-actions">
                             <div class="view-toggle">
-                                <button type="button" class="btn btn-sm btn-primary" id="btnViewLista" onclick="setAdminViewMode('lista')">≡ Lista</button>
-                                <button type="button" class="btn btn-sm btn-outline" id="btnViewKanban" onclick="setAdminViewMode('kanban')">◫ Kanban</button>
+                                <button type="button" class="btn btn-sm btn-primary" id="btnViewLista"
+                                    onclick="setAdminViewMode('lista')">≡ Lista</button>
+                                <button type="button" class="btn btn-sm btn-outline" id="btnViewKanban"
+                                    onclick="setAdminViewMode('kanban')">◫ Kanban</button>
                             </div>
-                            <select id="filtroSetorSolicitacoes" class="filter-select" onchange="renderAdminRequestsByFilters('solicitacoes')">
+                            <select id="filtroSetorSolicitacoes" class="filter-select"
+                                onchange="renderAdminRequestsByFilters('solicitacoes')">
                                 <option value="">Todos os setores</option>
                                 <option value="Administrativo">Administrativo</option>
                                 <option value="Financeiro">Financeiro</option>
                                 <option value="Acadêmico">Acadêmico</option>
                                 <option value="TI">TI</option>
                             </select>
-                            <select id="filtroStatusSolicitacoes" class="filter-select" onchange="renderAdminRequestsByFilters('solicitacoes')">
+                            <select id="filtroStatusSolicitacoes" class="filter-select"
+                                onchange="renderAdminRequestsByFilters('solicitacoes')">
                                 <option value="Pendente">Pendentes</option>
                                 <option value="Em Análise">Em Análise</option>
                                 <option value="Concluído">Concluídos</option>
@@ -459,24 +626,38 @@
                     <div class="totalizador-bar" id="totalSolicitacoesAdmin"></div>
                     <div class="search-bar-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="search" id="buscaSolicitacoesAdmin" class="search-bar" placeholder="Buscar por data, aluno, tipo, descrição ou status..." oninput="renderAdminRequestsByFilters('solicitacoes')" autocomplete="off">
+                        <input type="search" id="buscaSolicitacoesAdmin" class="search-bar"
+                            placeholder="Buscar por data, aluno, tipo, descrição ou status..."
+                            oninput="renderAdminRequestsByFilters('solicitacoes')" autocomplete="off">
                     </div>
                     <div id="kanbanBoard" class="kanban-board hidden">
-                        <div class="kanban-column" id="kanban-Pendente" ondragover="allowDrop(event)" ondrop="drop(event, 'Pendente')">
+                        <div class="kanban-column" id="kanban-Pendente" ondragover="allowDrop(event)"
+                            ondrop="drop(event, 'Pendente')">
                             <h3 class="kanban-column-title">Pendentes</h3>
                             <div class="kanban-column-content"></div>
                         </div>
-                        <div class="kanban-column" id="kanban-Analise" ondragover="allowDrop(event)" ondrop="drop(event, 'Em Análise')">
+                        <div class="kanban-column" id="kanban-Analise" ondragover="allowDrop(event)"
+                            ondrop="drop(event, 'Em Análise')">
                             <h3 class="kanban-column-title">Em Análise</h3>
                             <div class="kanban-column-content"></div>
                         </div>
-                        <div class="kanban-column" id="kanban-Concluido" ondragover="allowDrop(event)" ondrop="drop(event, 'Concluído')">
+                        <div class="kanban-column" id="kanban-Concluido" ondragover="allowDrop(event)"
+                            ondrop="drop(event, 'Concluído')">
                             <h3 class="kanban-column-title">Concluídos</h3>
                             <div class="kanban-column-content"></div>
                         </div>
                     </div>
                     <table id="tabelaSolicitacoesAdmin">
-                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Aluno</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
                         <tbody id="listaSolicitacoesAdmin"></tbody>
                     </table>
                 </section>
@@ -485,14 +666,16 @@
                     <div class="tab-header">
                         <h2>Mensagens dos Alunos</h2>
                         <div class="tab-header-actions">
-                            <select id="filtroSetorMensagens" class="filter-select" onchange="renderAdminRequestsByFilters('mensagens')">
+                            <select id="filtroSetorMensagens" class="filter-select"
+                                onchange="renderAdminRequestsByFilters('mensagens')">
                                 <option value="">Todos os setores</option>
                                 <option value="Administrativo">Administrativo</option>
                                 <option value="Financeiro">Financeiro</option>
                                 <option value="Acadêmico">Acadêmico</option>
                                 <option value="TI">TI</option>
                             </select>
-                            <select id="filtroStatusMensagens" class="filter-select" onchange="renderAdminRequestsByFilters('mensagens')">
+                            <select id="filtroStatusMensagens" class="filter-select"
+                                onchange="renderAdminRequestsByFilters('mensagens')">
                                 <option value="Pendente">Pendentes</option>
                                 <option value="Concluído">Concluídos</option>
                                 <option value="">Todos</option>
@@ -502,10 +685,21 @@
                     <div class="totalizador-bar" id="totalMensagensAdmin"></div>
                     <div class="search-bar-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="search" id="buscaMensagensAdmin" class="search-bar" placeholder="Buscar por data, aluno, tipo, descrição ou status..." oninput="renderAdminRequestsByFilters('mensagens')" autocomplete="off">
+                        <input type="search" id="buscaMensagensAdmin" class="search-bar"
+                            placeholder="Buscar por data, aluno, tipo, descrição ou status..."
+                            oninput="renderAdminRequestsByFilters('mensagens')" autocomplete="off">
                     </div>
                     <table>
-                        <thead><tr><th>Data</th><th>Aluno</th><th>Tipo</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Aluno</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
                         <tbody id="listaMensagensAdmin"></tbody>
                     </table>
                 </section>
@@ -514,41 +708,51 @@
                     <div class="tab-header">
                         <h2>Gerenciamento do Calendário Acadêmico</h2>
                         <div class="tab-header-actions" style="display: flex; gap: 0.5rem;">
-                            <button type="button" class="btn btn-secondary small" style="min-width: unset;" onclick="exportCalendarToIcal()">📥 Exportar iCal (.ics)</button>
-                            <button type="button" class="btn btn-primary small" style="min-width: unset;" onclick="resetCalendarToDefault()">🔄 Restaurar Padrão</button>
+                            <button type="button" class="btn btn-secondary small" style="min-width: unset;"
+                                onclick="exportCalendarToIcal()">📥 Exportar iCal (.ics)</button>
+                            <button type="button" class="btn btn-primary small" style="min-width: unset;"
+                                onclick="resetCalendarToDefault()">🔄 Restaurar Padrão</button>
                         </div>
                     </div>
                     <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 1rem;">
-                        <strong>Interface Low-Code:</strong> Arraste os modelos de eventos da barra lateral esquerda e solte-os em qualquer dia do calendário para criar um novo evento. Arraste eventos existentes para reagendá-los. Clique em um evento para editar ou excluir.
+                        <strong>Interface Low-Code:</strong> Arraste os modelos de eventos da barra lateral esquerda e
+                        solte-os em qualquer dia do calendário para criar um novo evento. Arraste eventos existentes
+                        para reagendá-los. Clique em um evento para editar ou excluir.
                     </p>
-                    
+
                     <div class="calendar-layout-container">
                         <!-- Left Palette Sidebar -->
                         <aside class="calendar-palette-sidebar">
                             <h3 class="palette-title">Paleta Low-Code</h3>
                             <p class="palette-desc">Arraste um tipo de evento para o calendário:</p>
                             <div class="palette-items">
-                                <div class="palette-item" draggable="true" data-category="Acadêmico" ondragstart="handlePaletteDragStart(event)">
+                                <div class="palette-item" draggable="true" data-category="Acadêmico"
+                                    ondragstart="handlePaletteDragStart(event)">
                                     <span class="palette-emoji">🎓</span>
                                     <span>Acadêmico</span>
                                 </div>
-                                <div class="palette-item" draggable="true" data-category="Prova" ondragstart="handlePaletteDragStart(event)">
+                                <div class="palette-item" draggable="true" data-category="Prova"
+                                    ondragstart="handlePaletteDragStart(event)">
                                     <span class="palette-emoji">📝</span>
                                     <span>Prova</span>
                                 </div>
-                                <div class="palette-item" draggable="true" data-category="Trabalho" ondragstart="handlePaletteDragStart(event)">
+                                <div class="palette-item" draggable="true" data-category="Trabalho"
+                                    ondragstart="handlePaletteDragStart(event)">
                                     <span class="palette-emoji">💻</span>
                                     <span>Trabalho</span>
                                 </div>
-                                <div class="palette-item" draggable="true" data-category="Feriado" ondragstart="handlePaletteDragStart(event)">
+                                <div class="palette-item" draggable="true" data-category="Feriado"
+                                    ondragstart="handlePaletteDragStart(event)">
                                     <span class="palette-emoji">🍂</span>
                                     <span>Feriado</span>
                                 </div>
-                                <div class="palette-item" draggable="true" data-category="Evento" ondragstart="handlePaletteDragStart(event)">
+                                <div class="palette-item" draggable="true" data-category="Evento"
+                                    ondragstart="handlePaletteDragStart(event)">
                                     <span class="palette-emoji">🌟</span>
                                     <span>Evento</span>
                                 </div>
-                                <div class="palette-item" draggable="true" data-category="Recesso" ondragstart="handlePaletteDragStart(event)">
+                                <div class="palette-item" draggable="true" data-category="Recesso"
+                                    ondragstart="handlePaletteDragStart(event)">
                                     <span class="palette-emoji">🏖️</span>
                                     <span>Recesso</span>
                                 </div>
@@ -559,13 +763,18 @@
                         <div class="calendar-main-area">
                             <div class="calendar-controls-header">
                                 <div class="calendar-nav-buttons">
-                                    <button type="button" class="calendar-nav-btn" onclick="navigateCalendarMonth(-1)">◀ Anterior</button>
-                                    <span id="adminCalendarMonthTitle" class="calendar-current-month-title">Maio 2026</span>
-                                    <button type="button" class="calendar-nav-btn" onclick="navigateCalendarMonth(1)">Próximo ▶</button>
+                                    <button type="button" class="calendar-nav-btn" onclick="navigateCalendarMonth(-1)">◀
+                                        Anterior</button>
+                                    <span id="adminCalendarMonthTitle" class="calendar-current-month-title">Maio
+                                        2026</span>
+                                    <button type="button" class="calendar-nav-btn"
+                                        onclick="navigateCalendarMonth(1)">Próximo ▶</button>
                                 </div>
                                 <div class="calendar-action-controls">
-                                    <input type="search" id="adminCalendarSearch" class="calendar-search-input" placeholder="Buscar evento..." oninput="handleCalendarSearchInput(event)">
-                                    <select id="adminCalendarCategoryFilter" class="calendar-category-select" onchange="handleCalendarCategoryFilterChange(event)">
+                                    <input type="search" id="adminCalendarSearch" class="calendar-search-input"
+                                        placeholder="Buscar evento..." oninput="handleCalendarSearchInput(event)">
+                                    <select id="adminCalendarCategoryFilter" class="calendar-category-select"
+                                        onchange="handleCalendarCategoryFilterChange(event)">
                                         <option value="">Todas as categorias</option>
                                         <option value="Acadêmico">Acadêmico</option>
                                         <option value="Prova">Prova</option>
@@ -580,6 +789,29 @@
                                 <!-- Generated by script.js -->
                             </div>
                         </div>
+                </section>
+
+                <section id="adminTab-ia" class="tab-panel" hidden>
+                    <div class="tab-header">
+                        <h2>🤖 Copiloto IA (Funcionário)</h2>
+                    </div>
+                    <div id="chatWrapperAdmin">
+                        <div class="chat-container" id="chatContainerAdmin">
+                            <div class="chat-history" id="chatHistoryAdmin"></div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chatInputAdmin"
+                                    placeholder="Peça para buscar alunos, alterar status, adicionar eventos..."
+                                    autocomplete="off">
+                                <button id="btnSendChatAdmin" class="btn btn-primary btn-icon-send" aria-label="Enviar"
+                                    title="Enviar">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -589,8 +821,8 @@
     <footer class="site-footer" id="siteFooter" hidden>
         <div class="footer-inner">
             <div class="footer-brand">
-                <img src="UniLogo3.png" alt="Logo UniFictícia" class="footer-logo">
-                <h3 class="footer-university-name">Universidade UniFictícia</h3>
+                <img src="UniLogo3.png" alt="Logo Faculdade" class="footer-logo">
+                <h3 class="footer-university-name">Universidade</h3>
                 <p class="footer-tagline">Formando profissionais fictícios desde 1994.</p>
             </div>
             <div class="footer-col">
@@ -621,7 +853,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2026 Universidade UniFictícia. Todos os direitos reservados.</p>
+            <p>© 2026 Universidade. Todos os direitos reservados.</p>
         </div>
     </footer>
 
@@ -629,24 +861,28 @@
     <div id="modalFuncionarios" class="modal">
         <div class="modal-content account-picker">
             <div class="account-picker-header">
-                <p class="account-picker-org">Universidade UniFictícia</p>
+                <p class="account-picker-org">Universidade</p>
                 <h2 class="account-picker-title">Escolha uma conta</h2>
                 <p class="account-picker-sub">Funcionários</p>
             </div>
             <div id="listaFuncionarios" class="account-list"></div>
             <div class="account-picker-footer">
-                <button type="button" class="account-picker-new-btn" onclick="closeModal('modalFuncionarios'); openModal('modalFuncionarioCadastro');">
+                <button type="button" class="account-picker-new-btn"
+                    onclick="closeModal('modalFuncionarios'); openModal('modalFuncionarioCadastro');">
                     <span class="account-picker-new-icon">+</span>
                     <span>Novo funcionário</span>
                 </button>
-                <button type="button" class="account-picker-cancel" onclick="closeModal('modalFuncionarios')">Cancelar</button>
+                <button type="button" class="account-picker-cancel"
+                    onclick="closeModal('modalFuncionarios')">Cancelar</button>
             </div>
         </div>
     </div>
 
     <div id="modalFuncionarioCadastro" class="modal">
         <div class="modal-content">
-            <button type="button" class="modal-back-arrow" onclick="closeModal('modalFuncionarioCadastro'); openModal('modalFuncionarios');" aria-label="Voltar">&#8592;</button>
+            <button type="button" class="modal-back-arrow"
+                onclick="closeModal('modalFuncionarioCadastro'); openModal('modalFuncionarios');"
+                aria-label="Voltar">&#8592;</button>
             <button class="close" type="button" onclick="closeModal('modalFuncionarioCadastro')">&times;</button>
             <h2>Cadastro de Funcionário</h2>
             <form id="employeeRegisterForm">
@@ -655,13 +891,19 @@
 
                 <label for="employeePassword">Senha</label>
                 <div class="password-field">
-                    <input id="employeePassword" type="password" required autocomplete="new-password" placeholder="Defina uma senha">
-                    <button type="button" class="password-toggle" data-target="employeePassword" aria-label="Mostrar senha" title="Mostrar senha">
+                    <input id="employeePassword" type="password" required autocomplete="new-password"
+                        placeholder="Defina uma senha">
+                    <button type="button" class="password-toggle" data-target="employeePassword"
+                        aria-label="Mostrar senha" title="Mostrar senha">
                         <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"></path>
+                            <path
+                                d="M12 5c-5.5 0-9.5 5-10.5 7 1 2 5 7 10.5 7s9.5-5 10.5-7c-1-2-5-7-10.5-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z">
+                            </path>
                         </svg>
                         <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z"></path>
+                            <path
+                                d="m3 4 17 17-1.5 1.5-3.2-3.2A12.5 12.5 0 0 1 12 19c-5.5 0-9.5-5-10.5-7a18 18 0 0 1 4.4-5.5L1.5 5.5 3 4Zm6.2 6.2A4 4 0 0 0 12 16a4 4 0 0 0 2.8-1.2L9.2 10.2Zm11.3 1.8a18 18 0 0 1-3.8 5l-1.4-1.4a15.4 15.4 0 0 0 2.7-3.6c-1-1.7-3.7-4.9-7-4.9-.9 0-1.8.2-2.6.5L6.9 6.1A10 10 0 0 1 12 5c5.5 0 9.5 5 10.5 7Z">
+                            </path>
                         </svg>
                     </button>
                 </div>
@@ -686,17 +928,19 @@
     <div id="modalAlunos" class="modal">
         <div class="modal-content account-picker">
             <div class="account-picker-header">
-                <p class="account-picker-org">Universidade UniFictícia</p>
+                <p class="account-picker-org">Universidade</p>
                 <h2 class="account-picker-title">Escolha uma conta</h2>
                 <p class="account-picker-sub">Alunos</p>
             </div>
             <div id="listaAlunos" class="account-list"></div>
             <div class="account-picker-footer">
-                <button type="button" class="account-picker-new-btn" onclick="closeModal('modalAlunos'); showRegisterView();">
+                <button type="button" class="account-picker-new-btn"
+                    onclick="closeModal('modalAlunos'); showRegisterView();">
                     <span class="account-picker-new-icon">+</span>
                     <span>Novo cadastro</span>
                 </button>
-                <button type="button" class="account-picker-cancel" onclick="closeModal('modalAlunos')">Cancelar</button>
+                <button type="button" class="account-picker-cancel"
+                    onclick="closeModal('modalAlunos')">Cancelar</button>
             </div>
         </div>
     </div>
@@ -704,23 +948,31 @@
     <!-- Modal Solicitação de Documentos -->
     <div id="modalDocumento" class="modal">
         <div class="modal-content">
-            <button id="modalDocumentoBack" class="modal-back-arrow doc-back-btn hidden" type="button" aria-label="Voltar">&#8592;</button>
+            <button id="modalDocumentoBack" class="modal-back-arrow doc-back-btn hidden" type="button"
+                aria-label="Voltar">&#8592;</button>
             <button class="close" type="button" onclick="closeModal('modalDocumento')">&times;</button>
             <h2 id="modalDocumentoTitle">Solicitações</h2>
             <form id="formDocumento">
                 <div id="docStepCategoria">
                     <div class="tipo-buttons">
-                        <button type="button" class="tipo-btn" data-value="Acadêmico" onclick="selectTipo(this); showDocumentStep('Acadêmico')">🎓 Acadêmico</button>
-                        <button type="button" class="tipo-btn" data-value="Financeiro" onclick="selectTipo(this); showDocumentStep('Financeiro')">💰 Financeiro</button>
-                        <button type="button" class="tipo-btn" data-value="Cadastro" onclick="selectTipo(this); showDocumentStep('Cadastro')" style="flex-direction: row;">🏛️ Cadastro</button>
+                        <button type="button" class="tipo-btn" data-value="Acadêmico"
+                            onclick="selectTipo(this); showDocumentStep('Acadêmico')">🎓 Acadêmico</button>
+                        <button type="button" class="tipo-btn" data-value="Financeiro"
+                            onclick="selectTipo(this); showDocumentStep('Financeiro')">💰 Financeiro</button>
+                        <button type="button" class="tipo-btn" data-value="Cadastro"
+                            onclick="selectTipo(this); showDocumentStep('Cadastro')" style="flex-direction: row;">🏛️
+                            Cadastro</button>
                     </div>
                 </div>
                 <input type="hidden" id="docTipo">
                 <div id="stepAcademico" class="doc-step hidden">
                     <div class="tipo-buttons" style="grid-template-columns: repeat(2, 1fr);">
-                        <button type="button" class="tipo-btn matricula-option-btn" data-value="Ver matrículas" onclick="selectMatriculaOption(this)">Ver matrículas</button>
-                        <button type="button" class="tipo-btn matricula-option-btn" data-value="Disciplinas disponíveis" onclick="selectMatriculaOption(this)">Disciplinas disponíveis</button>
-                        <button type="button" class="tipo-btn matricula-option-btn" data-value="Rematrícula" onclick="selectMatriculaOption(this)">Rematrícula</button>
+                        <button type="button" class="tipo-btn matricula-option-btn" data-value="Ver matrículas"
+                            onclick="selectMatriculaOption(this)">Ver matrículas</button>
+                        <button type="button" class="tipo-btn matricula-option-btn" data-value="Disciplinas disponíveis"
+                            onclick="selectMatriculaOption(this)">Disciplinas disponíveis</button>
+                        <button type="button" class="tipo-btn matricula-option-btn" data-value="Rematrícula"
+                            onclick="selectMatriculaOption(this)">Rematrícula</button>
                     </div>
                     <input type="hidden" id="matriculasSelect">
                     <div id="matriculasPreview" class="matriculas-preview hidden"></div>
@@ -728,39 +980,57 @@
                         <button type="button" id="matriculasEditOption">Editar matrícula</button>
                         <button type="button" id="matriculasRemoveOption">Remover matrícula</button>
                     </div>
-                    <button type="submit" id="btnAcademicoEnviar" class="btn btn-primary small hidden">Enviar Solicitação</button>
+                    <button type="submit" id="btnAcademicoEnviar" class="btn btn-primary small hidden">Enviar
+                        Solicitação</button>
                 </div>
                 <div id="stepFinanceiro" class="doc-step hidden">
                     <div class="tipo-buttons" style="grid-template-columns: repeat(2, 1fr);">
-                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="2ª via de boleto" onclick="selectFinanceiroOption(this)">📄 2ª via de boleto</button>
-                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="Comprovante de pagamento" onclick="selectFinanceiroOption(this)">🧾 Comprovante</button>
-                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="Declaração de quitação" onclick="selectFinanceiroOption(this)">📜 Declaração Anual</button>
-                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="Negociação de mensalidade" onclick="selectFinanceiroOption(this)">🤝 Negociação</button>
+                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="2ª via de boleto"
+                            onclick="selectFinanceiroOption(this)">📄 2ª via de boleto</button>
+                        <button type="button" class="tipo-btn financeiro-option-btn"
+                            data-value="Comprovante de pagamento" onclick="selectFinanceiroOption(this)">🧾
+                            Comprovante</button>
+                        <button type="button" class="tipo-btn financeiro-option-btn" data-value="Declaração de quitação"
+                            onclick="selectFinanceiroOption(this)">📜 Declaração Anual</button>
+                        <button type="button" class="tipo-btn financeiro-option-btn"
+                            data-value="Negociação de mensalidade" onclick="selectFinanceiroOption(this)">🤝
+                            Negociação</button>
                     </div>
                     <input type="hidden" id="financeiroSelect">
-                    
-                    <div id="financeiroDynamicArea" class="hidden" style="margin-top: 1rem; background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 6px;">
+
+                    <div id="financeiroDynamicArea" class="hidden"
+                        style="margin-top: 1rem; background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 6px;">
                     </div>
 
-                    <button type="submit" id="btnFinanceiroEnviar" class="btn btn-primary small hidden" style="margin-top: 1rem;">Continuar</button>
+                    <button type="submit" id="btnFinanceiroEnviar" class="btn btn-primary small hidden"
+                        style="margin-top: 1rem;">Continuar</button>
                 </div>
                 <div id="stepCadastro" class="doc-step hidden">
                     <h4 style="margin: 0 0 10px 0; font-size: 1rem;">Documentos (Emissão Automática)</h4>
                     <div class="tipo-buttons" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 20px;">
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Atestado de Matrícula" onclick="selectCadastroOption(this)">Atestado de Matrícula</button>
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Histórico Escolar" onclick="selectCadastroOption(this)">Histórico Escolar</button>
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Carteirinha de Estudante" onclick="selectCadastroOption(this)">Carteirinha</button>
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Certificado de Conclusão" onclick="selectCadastroOption(this)">Certificado</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Atestado de Matrícula"
+                            onclick="selectCadastroOption(this)">Atestado de Matrícula</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Histórico Escolar"
+                            onclick="selectCadastroOption(this)">Histórico Escolar</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Carteirinha de Estudante"
+                            onclick="selectCadastroOption(this)">Carteirinha</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Certificado de Conclusão"
+                            onclick="selectCadastroOption(this)">Certificado</button>
                     </div>
 
                     <h4 style="margin: 0 0 10px 0; font-size: 1rem;">Requerimentos</h4>
                     <div class="tipo-buttons" style="grid-template-columns: repeat(2, 1fr);">
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Atualização de cadastro" onclick="selectCadastroOption(this)">Atualização de Cadastro</button>
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Aproveitamento de estudos" onclick="selectCadastroOption(this)">Aproveitamento de Estudos</button>
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Trancamento de matrícula" onclick="selectCadastroOption(this)">Trancamento</button>
-                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Transferência de curso" onclick="selectCadastroOption(this)">Transferência</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Atualização de cadastro"
+                            onclick="selectCadastroOption(this)">Atualização de Cadastro</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn"
+                            data-value="Aproveitamento de estudos" onclick="selectCadastroOption(this)">Aproveitamento
+                            de Estudos</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Trancamento de matrícula"
+                            onclick="selectCadastroOption(this)">Trancamento</button>
+                        <button type="button" class="tipo-btn cadastro-option-btn" data-value="Transferência de curso"
+                            onclick="selectCadastroOption(this)">Transferência</button>
                     </div>
-                    
+
                     <input type="hidden" id="cadastroSelect">
 
                     <div id="cadastroFormDownload" class="doc-resultado hidden" style="margin-top: 15px;"></div>
@@ -828,7 +1098,8 @@
                             </div>
                             <label for="editLogradouro">Logradouro</label>
                             <input id="editLogradouro" type="text" placeholder="Rua, Avenida...">
-                            <label for="editComplemento">Complemento <span class="form-optional">(opcional)</span></label>
+                            <label for="editComplemento">Complemento <span
+                                    class="form-optional">(opcional)</span></label>
                             <input id="editComplemento" type="text" placeholder="Apto, Bloco...">
                             <div class="form-row">
                                 <div>
@@ -872,9 +1143,11 @@
                                 <option value="TO">Tocantins</option>
                             </select>
                         </div>
-                        <button type="button" class="btn btn-primary small" onclick="saveAtualizacaoCadastro()">Salvar</button>
+                        <button type="button" class="btn btn-primary small"
+                            onclick="saveAtualizacaoCadastro()">Salvar</button>
                     </div>
-                    <button type="submit" id="cadastroEnviarBtn" class="btn btn-primary small">Enviar Solicitação</button>
+                    <button type="submit" id="cadastroEnviarBtn" class="btn btn-primary small">Enviar
+                        Solicitação</button>
                 </div>
 
             </form>
@@ -900,7 +1173,8 @@
                 <small id="tipoMensagemHint" class="field-status" aria-live="polite"></small>
 
                 <label for="mensagemTexto">Sua mensagem:</label>
-                <textarea id="mensagemTexto" rows="4" required placeholder="Descreva aqui sua solicitação..."></textarea>
+                <textarea id="mensagemTexto" rows="4" required
+                    placeholder="Descreva aqui sua solicitação..."></textarea>
 
                 <button type="submit" class="btn-save">Enviar Mensagem</button>
             </form>
@@ -926,7 +1200,8 @@
                 <textarea id="respostaTexto" rows="3" placeholder="Escreva sua resposta..."></textarea>
 
                 <div id="autoDocumentSection" style="display: none;">
-                    <button type="button" id="btnSendAutoDocument" class="btn btn-secondary">📄 Enviar Documento Automático</button>
+                    <button type="button" id="btnSendAutoDocument" class="btn btn-secondary">📄 Enviar Documento
+                        Automático</button>
                 </div>
 
                 <label for="respostaArquivo">Enviar arquivo personalizado (opcional):</label>
@@ -939,9 +1214,12 @@
 
     <!-- Acessibilidade: Controle de Contraste e Fonte -->
     <div class="acessibilidade-panel">
-        <button type="button" class="btn-acessibilidade" onclick="toggleAltoContraste()" title="Alto Contraste">🌗</button>
-        <button type="button" class="btn-acessibilidade" onclick="mudarTamanhoFonte(1)" title="Aumentar Fonte">A+</button>
-        <button type="button" class="btn-acessibilidade" onclick="mudarTamanhoFonte(-1)" title="Diminuir Fonte">A-</button>
+        <button type="button" class="btn-acessibilidade" onclick="toggleAltoContraste()"
+            title="Alto Contraste">🌗</button>
+        <button type="button" class="btn-acessibilidade" onclick="mudarTamanhoFonte(1)"
+            title="Aumentar Fonte">A+</button>
+        <button type="button" class="btn-acessibilidade" onclick="mudarTamanhoFonte(-1)"
+            title="Diminuir Fonte">A-</button>
     </div>
 
     <!-- Acessibilidade: VLibras Widget -->
@@ -957,18 +1235,21 @@
     </script>
 
     <script src="script.js?v=20260325b"></script>
-    
+
     <!-- PDF Layout for Atestado (Hidden on screen, Visible on print) -->
     <div id="printDocument" class="print-container">
         <div class="print-header">
-            <img src="UniLogoCor2.png" alt="Logo Universidade UniFictícia" style="max-height: 80px; margin-bottom: 10px;">
-            <div class="print-logo" style="margin-top: 10px;">UNIVERSIDADE UNIFICTÍCIA</div>
+            <img src="UniLogoCor2.png" alt="Logo Universidade" style="max-height: 80px; margin-bottom: 10px;">
+            <div class="print-logo" style="margin-top: 10px;">Universidade</div>
             <div class="print-title">Atestado de Matrícula</div>
         </div>
         <div class="print-body">
-            <p>Atestamos para os devidos fins que o aluno(a) <strong id="printAlunoNome"></strong>, portador(a) do RA <strong id="printAlunoRA"></strong>, encontra-se regularmente matriculado(a) nesta instituição de ensino superior no semestre letivo atual.</p>
-            <p>Este documento possui validade oficial e sua autenticidade pode ser verificada em nosso portal eletrônico através do código de autenticação: <strong>LC-2026-X8Y9-PDF</strong>.</p>
-            
+            <p>Atestamos para os devidos fins que o aluno(a) <strong id="printAlunoNome"></strong>, portador(a) do RA
+                <strong id="printAlunoRA"></strong>, encontra-se regularmente matriculado(a) nesta instituição de ensino
+                superior no semestre letivo atual.</p>
+            <p>Este documento possui validade oficial e sua autenticidade pode ser verificada em nosso portal eletrônico
+                através do código de autenticação: <strong>LC-2026-X8Y9-PDF</strong>.</p>
+
             <div class="print-signatures">
                 <div>
                     <hr>
@@ -980,24 +1261,20 @@
             <p>Documento gerado eletronicamente em <span id="printDate"></span>.</p>
         </div>
     </div>
-    
-    <!-- Chatbot Virtual Assistant -->
-    <div class="chatbot-wrapper">
-        <button id="chatbotToggle" class="chatbot-toggle" aria-label="Abrir assistente virtual">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        </button>
-        
-        <div id="chatbotWindow" class="chatbot-window hidden">
-            <div class="chatbot-header">
-                <div class="chatbot-title">
-                    <span>🤖</span> Assistente
-                </div>
-                <button id="chatbotClose" class="chatbot-close">&times;</button>
-            </div>
-            <div id="chatbotBody" class="chatbot-body">
-                <!-- Messages will appear here -->
-            </div>
+
+    <!-- Gemini AI Sidebar Toggle & Overlay -->
+    <aside id="geminiSidebarOverlay" class="gemini-sidebar-overlay" hidden>
+        <div class="gemini-sidebar-header">
+            <h3>🤖 Copiloto IA</h3>
+            <button class="btn-close-sidebar"
+                onclick="document.getElementById('geminiSidebarOverlay').hidden = true; document.body.classList.remove('with-copilot');"
+                aria-label="Fechar sidebar"
+                style="background: transparent; color: white; cursor: pointer; font-size: 1.5rem;">&times;</button>
         </div>
+        <div id="geminiSidebarBody" class="gemini-sidebar-body">
+            <!-- O container do chat será movido para cá dinamicamente pelo JS -->
+        </div>
+    </aside>
     <!-- Modal Cadastro/Edição de Eventos do Calendário -->
     <div id="modalEventoCalendario" class="modal">
         <div class="modal-content">
@@ -1006,55 +1283,75 @@
             <form id="formEventoCalendario" onsubmit="handleCalendarFormSubmit(event)">
                 <input type="hidden" id="calendarEventId">
                 <input type="hidden" id="calendarEventDate">
-                
+
                 <label for="calendarEventTitle">Título:</label>
-                <input type="text" id="calendarEventTitle" required placeholder="Título do evento (ex: Prova de Cálculo)">
-                
+                <input type="text" id="calendarEventTitle" required
+                    placeholder="Título do evento (ex: Prova de Cálculo)">
+
                 <label for="calendarEventDesc">Descrição:</label>
                 <textarea id="calendarEventDesc" rows="3" placeholder="Descrição do evento..."></textarea>
-                
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div>
                         <label for="calendarEventDisplayDate">Data:</label>
-                        <input type="date" id="calendarEventDisplayDate" required onchange="document.getElementById('calendarEventDate').value = this.value">
+                        <input type="date" id="calendarEventDisplayDate" required
+                            onchange="document.getElementById('calendarEventDate').value = this.value">
                     </div>
                     <div>
                         <label for="calendarEventTime">Horário (opcional):</label>
                         <input type="time" id="calendarEventTime">
                     </div>
                 </div>
-                
+
                 <label>Categoria:</label>
                 <input type="hidden" id="calendarEventCategory" value="Acadêmico">
                 <div class="event-category-options-group">
-                    <button type="button" class="event-category-btn-selector selected" data-category="Acadêmico" onclick="selectEventCategory('Acadêmico')">🎓 Acadêmico</button>
-                    <button type="button" class="event-category-btn-selector" data-category="Prova" onclick="selectEventCategory('Prova')">📝 Prova</button>
-                    <button type="button" class="event-category-btn-selector" data-category="Trabalho" onclick="selectEventCategory('Trabalho')">💻 Trabalho</button>
-                    <button type="button" class="event-category-btn-selector" data-category="Feriado" onclick="selectEventCategory('Feriado')">🍂 Feriado</button>
-                    <button type="button" class="event-category-btn-selector" data-category="Evento" onclick="selectEventCategory('Evento')">🌟 Evento</button>
-                    <button type="button" class="event-category-btn-selector" data-category="Recesso" onclick="selectEventCategory('Recesso')">🏖️ Recesso</button>
+                    <button type="button" class="event-category-btn-selector selected" data-category="Acadêmico"
+                        onclick="selectEventCategory('Acadêmico')">🎓 Acadêmico</button>
+                    <button type="button" class="event-category-btn-selector" data-category="Prova"
+                        onclick="selectEventCategory('Prova')">📝 Prova</button>
+                    <button type="button" class="event-category-btn-selector" data-category="Trabalho"
+                        onclick="selectEventCategory('Trabalho')">💻 Trabalho</button>
+                    <button type="button" class="event-category-btn-selector" data-category="Feriado"
+                        onclick="selectEventCategory('Feriado')">🍂 Feriado</button>
+                    <button type="button" class="event-category-btn-selector" data-category="Evento"
+                        onclick="selectEventCategory('Evento')">🌟 Evento</button>
+                    <button type="button" class="event-category-btn-selector" data-category="Recesso"
+                        onclick="selectEventCategory('Recesso')">🏖️ Recesso</button>
                 </div>
-                
+
                 <label>Cor de Destaque:</label>
                 <input type="hidden" id="calendarEventColor" value="#001a4d">
                 <div class="event-color-palette-group">
-                    <span class="event-color-dot-selector selected" style="background-color: #001a4d;" data-color="#001a4d" onclick="selectEventColor('#001a4d')"></span>
-                    <span class="event-color-dot-selector" style="background-color: #a51c30;" data-color="#a51c30" onclick="selectEventColor('#a51c30')"></span>
-                    <span class="event-color-dot-selector" style="background-color: #d67a00;" data-color="#d67a00" onclick="selectEventColor('#d67a00')"></span>
-                    <span class="event-color-dot-selector" style="background-color: #8764b8;" data-color="#8764b8" onclick="selectEventColor('#8764b8')"></span>
-                    <span class="event-color-dot-selector" style="background-color: #107c10;" data-color="#107c10" onclick="selectEventColor('#107c10')"></span>
-                    <span class="event-color-dot-selector" style="background-color: #c50f1f;" data-color="#c50f1f" onclick="selectEventColor('#c50f1f')"></span>
-                    <span class="event-color-dot-selector" style="background-color: #0078d4;" data-color="#0078d4" onclick="selectEventColor('#0078d4')"></span>
-                    <span class="event-color-dot-selector" style="background-color: #475569;" data-color="#475569" onclick="selectEventColor('#475569')"></span>
+                    <span class="event-color-dot-selector selected" style="background-color: #001a4d;"
+                        data-color="#001a4d" onclick="selectEventColor('#001a4d')"></span>
+                    <span class="event-color-dot-selector" style="background-color: #a51c30;" data-color="#a51c30"
+                        onclick="selectEventColor('#a51c30')"></span>
+                    <span class="event-color-dot-selector" style="background-color: #d67a00;" data-color="#d67a00"
+                        onclick="selectEventColor('#d67a00')"></span>
+                    <span class="event-color-dot-selector" style="background-color: #8764b8;" data-color="#8764b8"
+                        onclick="selectEventColor('#8764b8')"></span>
+                    <span class="event-color-dot-selector" style="background-color: #107c10;" data-color="#107c10"
+                        onclick="selectEventColor('#107c10')"></span>
+                    <span class="event-color-dot-selector" style="background-color: #c50f1f;" data-color="#c50f1f"
+                        onclick="selectEventColor('#c50f1f')"></span>
+                    <span class="event-color-dot-selector" style="background-color: #0078d4;" data-color="#0078d4"
+                        onclick="selectEventColor('#0078d4')"></span>
+                    <span class="event-color-dot-selector" style="background-color: #475569;" data-color="#475569"
+                        onclick="selectEventColor('#475569')"></span>
                 </div>
-                
+
                 <div class="modal-footer-actions">
-                    <button type="button" id="btnDeleteCalendarEvent" class="btn btn-secondary small" style="background-color: #c50f1f; border-color: #c50f1f; min-width: 100px; display: none; color: white;" onclick="deleteCalendarEventFromModal()">Excluir</button>
-                    <button type="button" class="btn btn-secondary small" style="min-width: 100px;" onclick="closeCalendarModal()">Cancelar</button>
+                    <button type="button" id="btnDeleteCalendarEvent" class="btn btn-secondary small"
+                        style="background-color: #c50f1f; border-color: #c50f1f; min-width: 100px; display: none; color: white;"
+                        onclick="deleteCalendarEventFromModal()">Excluir</button>
+                    <button type="button" class="btn btn-secondary small" style="min-width: 100px;"
+                        onclick="closeCalendarModal()">Cancelar</button>
                     <button type="submit" class="btn-save" style="margin: 0; min-width: 100px;">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
 </body>
+
 </html>

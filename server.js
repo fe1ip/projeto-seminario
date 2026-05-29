@@ -7,6 +7,15 @@ const { execSync } = require('child_process');
 const PORT = 3000;
 const ROOT = __dirname;
 
+// Load .env
+try {
+  const envFile = fs.readFileSync(path.join(ROOT, '.env'), 'utf8');
+  envFile.split('\n').forEach(line => {
+    const match = line.match(/^([^=]+)=(.*)$/);
+    if (match) process.env[match[1].trim()] = match[2].trim();
+  });
+} catch (e) {}
+
 function findChrome() {
   if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH))
     return process.env.CHROME_PATH;
@@ -209,6 +218,52 @@ const server = http.createServer((req, res) => {
       } catch (e) {
         res.writeHead(500);
         res.end(JSON.stringify({ ok: false, error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // POST /api/chat  →  Gemini API proxy
+  if (req.method === 'POST' && req.url === '/api/chat') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey || apiKey === 'sua_chave_aqui' || apiKey.trim() === '') {
+          res.writeHead(500);
+          res.end(JSON.stringify({ error: { message: 'Chave de API do Gemini não configurada no arquivo .env. Abra o arquivo .env e coloque sua chave.' }}));
+          return;
+        }
+
+        const https = require('https');
+        const options = {
+          hostname: 'generativelanguage.googleapis.com',
+          port: 443,
+          path: `/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        };
+
+        const proxyReq = https.request(options, proxyRes => {
+          let proxyData = '';
+          proxyRes.on('data', d => { proxyData += d; });
+          proxyRes.on('end', () => {
+            res.writeHead(proxyRes.statusCode, { 'Content-Type': 'application/json' });
+            res.end(proxyData);
+          });
+        });
+
+        proxyReq.on('error', e => {
+          res.writeHead(500);
+          res.end(JSON.stringify({ error: { message: e.message }}));
+        });
+
+        proxyReq.write(body); // Fowards the exact same JSON from frontend to Google
+        proxyReq.end();
+      } catch (e) {
+        res.writeHead(500);
+        res.end(JSON.stringify({ error: { message: e.message }}));
       }
     });
     return;

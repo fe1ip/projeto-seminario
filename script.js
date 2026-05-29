@@ -412,6 +412,8 @@ function showLanding() {
   document.getElementById('adminView').hidden = true;
   setLandingElements(true);
   if (resetSlider) resetSlider();
+  document.getElementById('geminiSidebarOverlay').hidden = true;
+  document.body.classList.remove('with-copilot');
 }
 
 function showLoginView() {
@@ -422,6 +424,8 @@ function showLoginView() {
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = true;
   setLandingElements(false);
+  document.getElementById('geminiSidebarOverlay').hidden = true;
+  document.body.classList.remove('with-copilot');
 }
 
 function showRegisterView() {
@@ -432,6 +436,8 @@ function showRegisterView() {
   document.getElementById('appView').hidden = true;
   document.getElementById('adminView').hidden = true;
   setLandingElements(false);
+  document.getElementById('geminiSidebarOverlay').hidden = true;
+  document.body.classList.remove('with-copilot');
 }
 
 function showRegister() {
@@ -1087,6 +1093,33 @@ function switchTab(viewId, tab) {
 
   const btn = document.querySelector(`#${viewId} [data-tab="${tab}"]`);
   if (btn) btn.classList.add('active');
+
+  const sidebarOverlay = document.getElementById('geminiSidebarOverlay');
+  const sidebarBody = document.getElementById('geminiSidebarBody');
+  const user = getCurrentUser();
+
+  if (sidebarOverlay && sidebarBody && user) {
+    if (tab === 'ia') {
+      // Quando na aba IA, esconder o sidebar permanente e voltar o chat pra aba
+      sidebarOverlay.hidden = true;
+      document.body.classList.remove('with-copilot');
+      
+      const chatContainer = document.getElementById(user.role === 'admin' ? 'chatContainerAdmin' : 'chatContainerAluno');
+      const wrapper = document.getElementById(user.role === 'admin' ? 'chatWrapperAdmin' : 'chatWrapperAluno');
+      if (chatContainer && wrapper) {
+          wrapper.appendChild(chatContainer);
+      }
+    } else {
+      // Quando em outras abas, mostrar o sidebar e colocar o chat nele
+      sidebarOverlay.hidden = false;
+      document.body.classList.add('with-copilot');
+      
+      const chatContainer = document.getElementById(user.role === 'admin' ? 'chatContainerAdmin' : 'chatContainerAluno');
+      if (chatContainer) {
+          sidebarBody.appendChild(chatContainer);
+      }
+    }
+  }
 
   if (viewId === 'appView') {
     if (tab === 'solicitacoes') {
@@ -2168,7 +2201,7 @@ function renderVisaoGeral() {
       
       <div class="student-dashboard-flex-layout">
         <!-- Main Calendar Area -->
-        <div class="calendar-main-area" style="flex: 1;">
+        <div class="calendar-main-area" id="studentCalendarMainArea" style="flex: 1;">
           <div class="calendar-controls-header">
             <div class="calendar-nav-buttons">
               <button type="button" class="calendar-nav-btn" onclick="navigateStudentCalendarMonth(-1)">◀</button>
@@ -2288,99 +2321,12 @@ function gerarAtestadoPDF() {
 // CHATBOT LOGIC
 // ==========================================
 
-const chatFlow = {
-    start: {
-        text: "Olá! Sou o assistente virtual da UniFictícia. Como posso te ajudar hoje?",
-        options: [
-            { text: "Ver minhas notas", next: "notas" },
-            { text: "Solicitar documento", next: "docs" },
-            { text: "Problemas de acesso", next: "acesso" }
-        ]
-    },
-    notas: {
-        text: "Para ver suas notas, basta acessar a aba 'Visão Geral' no menu esquerdo principal. Lá você verá o boletim totalmente atualizado.",
-        options: [
-            { text: "Voltar ao início", next: "start" }
-        ]
-    },
-    docs: {
-        text: "Você pode emitir Atestados em PDF e solicitar Históricos diretamente na aba 'Solicitações' > 'Documentos'. É na hora!",
-        options: [
-            { text: "Voltar ao início", next: "start" }
-        ]
-    },
-    acesso: {
-        text: "Se você esqueceu sua senha, clique em 'Funcionários' na tela de login inicial e procure o RH, ou vá até a Secretaria Acadêmica com um documento original com foto.",
-        options: [
-            { text: "Voltar ao início", next: "start" }
-        ]
-    }
-};
+// ==========================================
+// GEMINI SIDEBAR LOGIC (Copiloto Permanente)
+// ==========================================
 
-function initChatbot() {
-    const toggle = document.getElementById('chatbotToggle');
-    const windowEl = document.getElementById('chatbotWindow');
-    const close = document.getElementById('chatbotClose');
-    const body = document.getElementById('chatbotBody');
-
-    if (!toggle || !windowEl) return;
-
-    toggle.addEventListener('click', () => {
-        windowEl.classList.remove('hidden');
-        if (body.children.length === 0) {
-            renderChatNode('start');
-        }
-    });
-
-    close.addEventListener('click', () => {
-        windowEl.classList.add('hidden');
-    });
-}
-
-function renderChatNode(nodeId) {
-    const body = document.getElementById('chatbotBody');
-    const node = chatFlow[nodeId];
-    if (!node) return;
-
-    // Remove existing options from previous message to keep flow clean
-    const existingOptions = body.querySelectorAll('.chat-options');
-    existingOptions.forEach(el => el.remove());
-
-    // Add bot message
-    const msgEl = document.createElement('div');
-    msgEl.className = 'chat-msg bot';
-    msgEl.textContent = node.text;
-    body.appendChild(msgEl);
-
-    // Add options
-    if (node.options && node.options.length > 0) {
-        const optionsDiv = document.createElement('div');
-        optionsDiv.className = 'chat-options';
-        
-        node.options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'chat-option-btn';
-            btn.textContent = opt.text;
-            btn.onclick = () => {
-                // Add user message
-                const userMsg = document.createElement('div');
-                userMsg.className = 'chat-msg user';
-                userMsg.textContent = opt.text;
-                optionsDiv.replaceWith(userMsg); // Replace options with user's choice
-                
-                // Simulate typing delay
-                setTimeout(() => renderChatNode(opt.next), 500);
-            };
-            optionsDiv.appendChild(btn);
-        });
-        body.appendChild(optionsDiv);
-    }
-
-    body.scrollTop = body.scrollHeight;
-}
-
-// Initialize Chatbot when DOM loads
-document.addEventListener('DOMContentLoaded', initChatbot);
+// A lógica de mover o chat agora é controlada diretamente pela função switchTab(),
+// portanto as funções antigas de toggle foram removidas.
 
 // ==========================================
 // INTERACTIVE CALENDAR LOGIC (LOW CODE)
@@ -3128,13 +3074,367 @@ function setLandingCalendarView(view) {
     gridArea.classList.remove('hidden');
     controls.classList.remove('hidden');
     listArea.classList.add('hidden');
-  } else {
-    btnList.classList.add('active');
-    btnGrid.classList.remove('active');
     gridArea.classList.add('hidden');
     controls.classList.add('hidden');
     listArea.classList.remove('hidden');
   }
 }
 
+/* ==========================================================================
+   🤖 ASSISTENTE IA E FUNCTION CALLING
+   ========================================================================== */
+
+let chatHistoryStateAluno = [];
+let chatHistoryStateAdmin = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Bindings de botões do chat
+    const btnSendAluno = document.getElementById('btnSendChatAluno');
+    const inputAluno = document.getElementById('chatInputAluno');
+    if (btnSendAluno && inputAluno) {
+        btnSendAluno.addEventListener('click', () => handleSendChat('aluno'));
+        inputAluno.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleSendChat('aluno');
+        });
+    }
+
+    const btnSendAdmin = document.getElementById('btnSendChatAdmin');
+    const inputAdmin = document.getElementById('chatInputAdmin');
+    if (btnSendAdmin && inputAdmin) {
+        btnSendAdmin.addEventListener('click', () => handleSendChat('admin'));
+        inputAdmin.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleSendChat('admin');
+        });
+    }
+});
+
+function parseMarkdown(text) {
+    if (!text) return '';
+    
+    // Escapar HTML básico
+    let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    
+    html = html
+        // Negrito
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Itálico
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Código inline
+        .replace(/`(.*?)`/g, '<code class="chat-code">$1</code>')
+        // Listas simples
+        .replace(/^[\-\*]\s+(.*)$/gm, '<li>$1</li>')
+        // Quebras de linha
+        .replace(/\n/g, '<br>');
+        
+    // Agrupar <li> em <ul>
+    html = html.replace(/(<li>.*?<\/li>(<br>)?)+/g, match => {
+        return '<ul class="chat-list">' + match.replace(/<br>/g, '') + '</ul>';
+    });
+
+    return html;
+}
+
+function appendMessage(role, text, roleType) {
+    const historyDiv = document.getElementById(`chatHistory${roleType === 'admin' ? 'Admin' : 'Aluno'}`);
+    if (!historyDiv) return;
+
+    const div = document.createElement('div');
+    div.className = `chat-msg-bubble ${role === 'user' ? 'user' : 'bot'}`;
+    div.innerHTML = parseMarkdown(text);
+    historyDiv.appendChild(div);
+    historyDiv.scrollTop = historyDiv.scrollHeight;
+}
+
+function appendActionFeedback(actionText, roleType, isDone = false, isError = false) {
+    const historyDiv = document.getElementById(`chatHistory${roleType === 'admin' ? 'Admin' : 'Aluno'}`);
+    if (!historyDiv) return null;
+
+    const card = document.createElement('div');
+    card.className = `ai-action-card ${isDone ? 'success' : ''} ${isError ? 'error' : ''}`;
+    
+    if (!isDone && !isError) {
+        card.innerHTML = `<div class="spinner"></div> <span>${actionText}</span>`;
+    } else if (isDone) {
+        card.innerHTML = `<span>✅ ${actionText}</span>`;
+    } else {
+        card.innerHTML = `<span>❌ ${actionText}</span>`;
+    }
+
+    historyDiv.appendChild(card);
+    historyDiv.scrollTop = historyDiv.scrollHeight;
+    return card;
+}
+
+function highlightElement(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    if (el.highlightTimeout) clearTimeout(el.highlightTimeout);
+    el.classList.remove('ai-highlight');
+    void el.offsetWidth; // trigger reflow
+    el.classList.add('ai-highlight');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.highlightTimeout = setTimeout(() => {
+        el.classList.remove('ai-highlight');
+    }, 4000);
+}
+
+async function handleSendChat(roleType) {
+    const inputField = document.getElementById(`chatInput${roleType === 'admin' ? 'Admin' : 'Aluno'}`);
+    const text = inputField.value.trim();
+    if (!text) return;
+
+    inputField.value = '';
+    appendMessage('user', text, roleType);
+
+    const history = roleType === 'admin' ? chatHistoryStateAdmin : chatHistoryStateAluno;
+    history.push({ role: 'user', parts: [{ text }] });
+
+    await callGeminiAPI(history, roleType);
+}
+
+const TOOLS_ALUNO = [{
+    functionDeclarations: [
+        {
+            name: "ver_calendario_academico",
+            description: "Busca todos os eventos do calendário acadêmico. Você pode opcionalmente destacar um dia específico na tela se for relevante para a resposta.",
+            parameters: {
+                type: "OBJECT",
+                properties: {
+                    dia_destacado: { type: "NUMBER", description: "Opcional. O dia do mês (ex: 5) para destacar na interface." }
+                }
+            }
+        },
+        {
+            name: "ver_minhas_solicitacoes",
+            description: "Busca todas as solicitações criadas pelo aluno logado."
+        },
+        {
+            name: "criar_solicitacao",
+            description: "Cria uma nova solicitação para a secretaria. Tipos válidos: 'Acadêmico', 'Financeiro', 'Cadastro'. O resultado indicará se foi sucesso.",
+            parameters: {
+                type: "OBJECT",
+                properties: {
+                    tipo: { type: "STRING", description: "O tipo do documento/solicitação. Ex: Acadêmico, Financeiro ou Cadastro" },
+                    descricao: { type: "STRING", description: "O detalhe do que o aluno precisa." }
+                },
+                required: ["tipo", "descricao"]
+            }
+        }
+    ]
+}];
+
+const TOOLS_ADMIN = [{
+    functionDeclarations: [
+        {
+            name: "listar_solicitacoes_alunos",
+            description: "Lista as solicitações feitas pelos alunos. Você pode filtrar por status ('Pendente', 'Em Análise', 'Concluído'). Se não enviar filtro, traz todas.",
+            parameters: {
+                type: "OBJECT",
+                properties: { status: { type: "STRING", description: "Filtro de status opcional." } }
+            }
+        },
+        {
+            name: "atualizar_status_solicitacao",
+            description: "Altera o status de uma solicitação específica. O status DEVE ser 'Pendente', 'Em Análise' ou 'Concluído'.",
+            parameters: {
+                type: "OBJECT",
+                properties: { 
+                    id: { type: "NUMBER", description: "O ID numérico da solicitação." },
+                    novo_status: { type: "STRING", description: "O novo status exato." }
+                },
+                required: ["id", "novo_status"]
+            }
+        }
+    ]
+}];
+
+async function callGeminiAPI(history, roleType) {
+    const systemInstructionText = roleType === 'admin' 
+        ? "Você é o Copiloto IA da Faculdade, ajudando o administrador. Você pode listar e atualizar solicitações."
+        : "Você é o Assistente IA da Faculdade, ajudando o aluno. Você pode ler o calendário, ver solicitações e criar novas.";
+
+    const tools = roleType === 'admin' ? TOOLS_ADMIN : TOOLS_ALUNO;
+
+    const payload = {
+        systemInstruction: { parts: [{ text: systemInstructionText }] },
+        contents: history,
+        tools: tools
+    };
+
+    const thinkingCard = appendActionFeedback("Processando com IA...", roleType);
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (thinkingCard) thinkingCard.remove();
+        
+        if (data.error) {
+            appendMessage('bot', "Erro do Servidor: " + (data.error.message || data.error), roleType);
+            return;
+        }
+
+        const candidate = data.candidates?.[0];
+        if (!candidate) {
+             appendMessage('bot', "Desculpe, não consegui entender.", roleType);
+             return;
+        }
+
+        // Adiciona a resposta da IA no histórico local para manter o contexto
+        history.push(candidate.content);
+
+        const functionCalls = candidate.content.parts.filter(p => p.functionCall);
+
+        if (functionCalls.length > 0) {
+            const responsesPart = [];
+            for (let i = 0; i < functionCalls.length; i++) {
+                const p = functionCalls[i];
+                // Sempre muda a tela para o usuário ver o robô trabalhando
+                const resultJSON = await executeFunctionCall(p.functionCall, roleType, true);
+                responsesPart.push({
+                    functionResponse: {
+                        name: p.functionCall.name,
+                        response: resultJSON
+                    }
+                });
+                
+                // Se houver mais de uma tarefa, aguarda 2.5s para a animação visual da tela atual terminar antes de pular para a próxima
+                if (i < functionCalls.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 2500));
+                }
+            }
+            
+            // Devolve o resultado de TODAS as funções agrupadas para o Gemini
+            history.push({
+                role: 'user',
+                parts: responsesPart
+            });
+            
+            // Chama a API novamente para ela ler as respostas das funções e gerar o texto final
+            await callGeminiAPI(history, roleType);
+            
+        } else {
+            const textParts = candidate.content.parts.filter(p => p.text);
+            if (textParts.length > 0) {
+                const fullText = textParts.map(p => p.text).join('\n');
+                appendMessage('bot', fullText, roleType);
+            }
+        }
+
+    } catch (e) {
+        if (thinkingCard) thinkingCard.remove();
+        appendMessage('bot', "Erro de conexão com o servidor local.", roleType);
+    }
+}
+
+async function executeFunctionCall(functionCall, roleType, shouldSwitchUI = true) {
+    const { name, args } = functionCall;
+    let resultJSON = {};
+    let actionCard = null;
+
+    try {
+        if (roleType === 'aluno') {
+            if (name === 'ver_calendario_academico') {
+                actionCard = appendActionFeedback("Acessando calendário acadêmico...", roleType);
+                resultJSON = { eventos: getEvents() };
+                if(actionCard) { actionCard.outerHTML = ''; appendActionFeedback("Calendário acessado.", roleType, true); }
+                if (shouldSwitchUI) {
+                    switchTab('appView', 'visao-geral'); // Mostra a home se quiser ver o calendário (opcional)
+                    setTimeout(() => { 
+                        highlightElement('studentCalendarMainArea'); 
+                        if (args && args.dia_destacado) {
+                            document.querySelectorAll('#studentCalendarGrid .calendar-date-cell:not(.other-month)').forEach(el => {
+                                if (el.querySelector('.calendar-day-number-badge')?.textContent == args.dia_destacado) {
+                                    if (!el.id) el.id = 'calendar-cell-' + args.dia_destacado;
+                                    setTimeout(() => highlightElement(el.id), 100);
+                                }
+                            });
+                        }
+                    }, 300);
+                }
+            } 
+            else if (name === 'ver_minhas_solicitacoes') {
+                actionCard = appendActionFeedback("Buscando suas solicitações...", roleType);
+                const user = getCurrentUser();
+                const requests = getRequests().filter(r => r.matricula === user?.matricula);
+                resultJSON = { solicitacoes: requests };
+                if(actionCard) { actionCard.outerHTML = ''; appendActionFeedback("Solicitações carregadas.", roleType, true); }
+                if (shouldSwitchUI) {
+                    switchTab('appView', 'solicitacoes');
+                    setTimeout(() => { highlightElement('tableMinhasSolicitacoes'); }, 300);
+                }
+            }
+            else if (name === 'criar_solicitacao') {
+                actionCard = appendActionFeedback("Criando nova solicitação...", roleType);
+                
+                const req = salvarSolicitacao({
+                    tipo: 'Documento',
+                    descricao: `[${args.tipo}] ${args.descricao}`,
+                    isDocumento: true
+                });
+                
+                resultJSON = { sucesso: true, id_gerado: req ? req.id : null };
+                
+                if(actionCard) { actionCard.outerHTML = ''; appendActionFeedback("Solicitação criada com sucesso!", roleType, true); }
+                
+                if (shouldSwitchUI) {
+                    switchTab('appView', 'solicitacoes');
+                    renderRequests('listaSolicitacoes'); // Renderiza tabela
+                    // Destaca na tabela
+                    setTimeout(() => { highlightElement('tableMinhasSolicitacoes'); }, 300);
+                } else {
+                    renderRequests('listaSolicitacoes');
+                }
+            }
+        } 
+        else if (roleType === 'admin') {
+            if (name === 'listar_solicitacoes_alunos') {
+                actionCard = appendActionFeedback("Buscando solicitações dos alunos...", roleType);
+                let reqs = getRequests().filter(r => r.type === 'Documento');
+                if (args.status) reqs = reqs.filter(r => r.status.toLowerCase() === args.status.toLowerCase());
+                resultJSON = { solicitacoes: reqs };
+                if(actionCard) { actionCard.outerHTML = ''; appendActionFeedback("Busca concluída.", roleType, true); }
+                if (shouldSwitchUI) {
+                    switchTab('adminView', 'solicitacoes');
+                    setTimeout(() => { highlightElement('tabelaSolicitacoesAdmin'); }, 300);
+                }
+            }
+            else if (name === 'atualizar_status_solicitacao') {
+                actionCard = appendActionFeedback("Atualizando status da solicitação...", roleType);
+                const reqs = getRequests();
+                const idx = reqs.findIndex(r => r.id === args.id);
+                if (idx !== -1) {
+                    reqs[idx].status = args.novo_status;
+                    saveRequests(reqs);
+                    resultJSON = { sucesso: true, novo_status: args.novo_status };
+                    if(actionCard) { actionCard.outerHTML = ''; appendActionFeedback(`Status atualizado para ${args.novo_status}!`, roleType, true); }
+                    
+                    if (shouldSwitchUI) {
+                        switchTab('adminView', 'solicitacoes');
+                        renderAdminRequestsByFilters('solicitacoes'); // Re-renderiza Kanban/Lista
+                        
+                        // Highlight the kanban board to show change
+                        setTimeout(() => { highlightElement('kanbanBoard'); }, 300);
+                    } else {
+                        renderAdminRequestsByFilters('solicitacoes');
+                    }
+                } else {
+                    resultJSON = { erro: "ID não encontrado." };
+                    if(actionCard) { actionCard.outerHTML = ''; appendActionFeedback("Falha ao atualizar.", roleType, false, true); }
+                }
+            }
+        }
+
+        return resultJSON;
+
+    } catch (e) {
+        console.error(e);
+        if(actionCard) { actionCard.outerHTML = ''; appendActionFeedback("Erro na execução local.", roleType, false, true); }
+        return { erro: "Falha na execução local da ferramenta." };
+    }
+}
 
