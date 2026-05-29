@@ -2,6 +2,7 @@ const STORAGE_USERS = 'portal_users';
 const STORAGE_CURRENT = 'portal_currentUser';
 const STORAGE_REQUESTS = 'portal_requests';
 const STORAGE_NOTAS = 'portal_notas';
+const STORAGE_EVENTS = 'portal_calendar_events';
 const CEP_LOOKUP_URL = 'https://viacep.com.br/ws';
 const EMPLOYEE_SECTORS = ['Administrativo', 'Financeiro', 'Acadêmico', 'TI', 'Administrador'];
 
@@ -72,10 +73,74 @@ document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
   ensureDefaultUsers();
+  ensureDefaultEvents();
   bindEvents();
   initSlider();
   loadCurrentUser();
+  renderLandingCalendar();
+  initLandingAnimations();
 }
+
+function initLandingAnimations() {
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.15
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.animate-on-scroll').forEach(el => {
+    observer.observe(el);
+  });
+
+  const header = document.querySelector('header');
+
+  window.addEventListener('scroll', () => {
+    const isLandingView = document.getElementById('landingView').hidden === false;
+
+    if (isLandingView) {
+      if (window.scrollY > 50) {
+        header.classList.remove('header-transparent');
+        header.classList.add('header-scrolled');
+      } else {
+        header.classList.add('header-transparent');
+        header.classList.remove('header-scrolled');
+      }
+    }
+  });
+}
+
+function ensureDefaultEvents() {
+  if (!localStorage.getItem(STORAGE_EVENTS)) {
+    const defaultEvents = [
+      { id: 1, title: 'Início do Período Letivo', desc: 'Início das aulas do 1º semestre de 2026 para todos os cursos.', date: '2026-03-10', category: 'Acadêmico', color: '#001a4d', owner: 'admin' },
+      { id: 2, title: 'Feriado — Tiradentes', desc: 'Sem atividades letivas.', date: '2026-04-21', category: 'Feriado', color: '#d67a00', owner: 'admin' },
+      { id: 3, title: 'Semana Acadêmica', desc: 'Palestras, workshops e minicursos abertos a toda a comunidade universitária.', date: '2026-05-05', category: 'Evento', color: '#a51c30', owner: 'admin' },
+      { id: 4, title: 'Período de Provas Parciais', desc: 'Avaliações parciais de todas as disciplinas — de 02 a 13 de junho.', date: '2026-06-02', category: 'Acadêmico', color: '#001a4d', owner: 'admin' },
+      { id: 5, title: 'Recesso — Julho', desc: 'Recesso escolar de 14 a 25 de julho. Retorno em 28 de julho.', date: '2026-07-14', category: 'Recesso', color: '#8764b8', owner: 'admin' },
+      { id: 6, title: 'Provas Finais', desc: 'Período de provas finais e exames — de 25 de novembro a 05 de dezembro.', date: '2026-11-25', category: 'Acadêmico', color: '#001a4d', owner: 'admin' }
+    ];
+    localStorage.setItem(STORAGE_EVENTS, JSON.stringify(defaultEvents));
+  }
+}
+
+function getEvents() {
+  return JSON.parse(localStorage.getItem(STORAGE_EVENTS) || '[]');
+}
+
+function saveEvents(events) {
+  localStorage.setItem(STORAGE_EVENTS, JSON.stringify(events));
+}
+
+// A renderização real do calendário público está no final do arquivo
 
 function ensureDefaultUsers() {
   if (!localStorage.getItem(STORAGE_USERS)) {
@@ -118,6 +183,7 @@ function bindEvents() {
 
   bind('btnGoToLogin', 'click', () => openAccountDialog('admin'));
   bind('btnGoToRegister', 'click', () => openAccountDialog('aluno'));
+  bind('mobileMenuToggle', 'click', () => { document.getElementById('mainNav')?.classList.toggle('active'); });
   bind('loginForm', 'submit', handleLogin);
   bind('loginUsername', 'keydown', (e) => {
     if (e.key === 'Enter') {
@@ -302,6 +368,22 @@ function updateHeaderAuthState(user, currentView = 'landingView') {
   if (profileToggle) {
     profileToggle.title = isLoggedIn ? `${user.name} - Sair` : 'Perfil';
     profileToggle.setAttribute('aria-label', isLoggedIn ? `Menu do perfil de ${user.name}` : 'Abrir menu do perfil');
+  }
+
+  const header = document.querySelector('header');
+  if (header) {
+    if (isLandingView) {
+      if (window.scrollY <= 50) {
+        header.classList.add('header-transparent');
+        header.classList.remove('header-scrolled');
+      } else {
+        header.classList.remove('header-transparent');
+        header.classList.add('header-scrolled');
+      }
+    } else {
+      header.classList.remove('header-transparent');
+      header.classList.add('header-scrolled');
+    }
   }
 }
 
@@ -1038,6 +1120,9 @@ function switchTab(viewId, tab) {
         filtroSetor.value = getDefaultSectorFilterValue();
       }
       renderAdminRequestsByFilters('mensagens');
+    }
+    if (tab === 'calendario') {
+      renderCalendar('adminCalendarGrid', true);
     }
   }
 }
@@ -2073,7 +2158,53 @@ function renderVisaoGeral() {
             <td class="${d.situacao === 'Aprovado' ? 'status-concluido' : 'status-pendente'}">${d.situacao}</td>
           </tr>`).join('')}
       </tbody>
-    </table>`;
+    </table>
+    
+    <div class="student-calendar-dashboard-section">
+      <h3 class="visao-subtitle" style="margin-top: 2rem;">Calendário Acadêmico e Compromissos</h3>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">
+        Visualize as datas importantes do semestre. Dê um <strong>duplo clique</strong> em um dia para adicionar um lembrete pessoal privado (marcado com 👤).
+      </p>
+      
+      <div class="student-dashboard-flex-layout">
+        <!-- Main Calendar Area -->
+        <div class="calendar-main-area" style="flex: 1;">
+          <div class="calendar-controls-header">
+            <div class="calendar-nav-buttons">
+              <button type="button" class="calendar-nav-btn" onclick="navigateStudentCalendarMonth(-1)">◀</button>
+              <span id="studentCalendarMonthTitle" class="calendar-current-month-title" style="min-width: 140px; font-size: 1.1rem;">Maio 2026</span>
+              <button type="button" class="calendar-nav-btn" onclick="navigateStudentCalendarMonth(1)">▶</button>
+            </div>
+            <div class="calendar-action-controls">
+              <input type="search" id="studentCalendarSearch" class="calendar-search-input" style="width: 130px; padding: 0.3rem 0.5rem;" placeholder="Buscar..." oninput="handleStudentCalendarSearch()">
+              <select id="studentCalendarCategoryFilter" class="calendar-category-select" style="padding: 0.3rem 0.5rem;" onchange="handleStudentCalendarFilter()">
+                <option value="">Todas</option>
+                <option value="Acadêmico">Acadêmico</option>
+                <option value="Prova">Prova</option>
+                <option value="Trabalho">Trabalho</option>
+                <option value="Feriado">Feriado</option>
+                <option value="Evento">Evento</option>
+                <option value="Recesso">Recesso</option>
+              </select>
+            </div>
+          </div>
+          <div class="calendar-days-grid" id="studentCalendarGrid">
+            <!-- Generated by script.js -->
+          </div>
+        </div>
+        
+        <!-- Sidebar Widget "Próximos Compromissos" -->
+        <aside class="student-upcoming-widget-sidebar">
+          <h4 class="upcoming-widget-title">🔔 Próximos 7 Dias</h4>
+          <div class="upcoming-events-list-wrapper" id="studentUpcomingEventsList">
+            <!-- Generated by script.js -->
+          </div>
+        </aside>
+      </div>
+    </div>`;
+
+  renderCalendar('studentCalendarGrid', false);
+  renderUpcomingEventsWidget();
 }
 
 function saveUsers(users) {
@@ -2250,4 +2381,760 @@ function renderChatNode(nodeId) {
 
 // Initialize Chatbot when DOM loads
 document.addEventListener('DOMContentLoaded', initChatbot);
+
+// ==========================================
+// INTERACTIVE CALENDAR LOGIC (LOW CODE)
+// ==========================================
+
+let currentCalendarDate = new Date(2026, 4, 1); // Maio 2026
+let landingCalendarDate = new Date(2026, 4, 1);
+let landingCalendarView = 'grid';
+
+// Palette Drag Start handler
+function handlePaletteDragStart(ev) {
+  const category = ev.target.dataset.category;
+  ev.dataTransfer.setData("text/plain", `palette-category:${category}`);
+}
+
+// Reschedule Event (Drag and drop event cell to cell)
+function rescheduleEvent(eventId, newDateStr) {
+  const events = getEvents();
+  const index = events.findIndex(e => e.id === eventId);
+  if (index === -1) return;
+  
+  const user = getCurrentUser();
+  const event = events[index];
+  
+  if (event.owner === 'admin') {
+    if (!user || user.role !== 'admin') {
+      alert("Apenas administradores podem reagendar eventos acadêmicos oficiais.");
+      return;
+    }
+  } else {
+    if (!user || event.owner !== user.username) {
+      alert("Você só pode reagendar seus próprios lembretes pessoais.");
+      return;
+    }
+  }
+  
+  event.date = newDateStr;
+  saveEvents(events);
+  
+  if (user && user.role === 'admin') {
+    renderCalendar('adminCalendarGrid', true);
+  } else {
+    renderCalendar('studentCalendarGrid', false);
+    renderUpcomingEventsWidget();
+  }
+  renderLandingCalendar();
+}
+
+// Open modal to create event
+function openCalendarModalForCreate(dateStr, category = 'Acadêmico', isPersonal = false) {
+  const user = getCurrentUser();
+  
+  const form = document.getElementById('formEventoCalendario');
+  if (form) form.reset();
+  
+  document.getElementById('calendarEventId').value = '';
+  document.getElementById('calendarEventDate').value = dateStr;
+  document.getElementById('calendarEventDisplayDate').value = dateStr;
+  document.getElementById('btnDeleteCalendarEvent').style.display = 'none';
+  
+  selectEventCategory(category);
+  
+  const colors = {
+    'Acadêmico': '#001a4d',
+    'Feriado': '#d67a00',
+    'Evento': '#a51c30',
+    'Recesso': '#8764b8',
+    'Prova': '#c50f1f',
+    'Trabalho': '#107c10'
+  };
+  selectEventColor(colors[category] || '#001a4d');
+  
+  const title = (user && user.role === 'admin' && !isPersonal) ? 'Novo Evento Acadêmico' : 'Novo Lembrete Pessoal';
+  document.getElementById('calendarModalTitle').textContent = title;
+  
+  openModal('modalEventoCalendario');
+}
+
+// Open modal to edit event
+function openCalendarModalForEdit(eventId) {
+  const events = getEvents();
+  const event = events.find(e => e.id === eventId);
+  if (!event) return;
+  
+  const user = getCurrentUser();
+  
+  if (event.owner === 'admin' && (!user || user.role !== 'admin')) {
+    showEventDetails(event);
+    return;
+  }
+  
+  document.getElementById('calendarEventId').value = event.id;
+  document.getElementById('calendarEventDate').value = event.date;
+  document.getElementById('calendarEventDisplayDate').value = event.date;
+  document.getElementById('calendarEventTitle').value = event.title;
+  document.getElementById('calendarEventDesc').value = event.desc || '';
+  document.getElementById('calendarEventTime').value = event.time || '';
+  
+  selectEventCategory(event.category);
+  selectEventColor(event.color || '#001a4d');
+  
+  document.getElementById('btnDeleteCalendarEvent').style.display = 'block';
+  
+  const title = event.owner !== 'admin' ? 'Editar Lembrete Pessoal' : 'Editar Evento Acadêmico';
+  document.getElementById('calendarModalTitle').textContent = title;
+  
+  openModal('modalEventoCalendario');
+}
+
+function closeCalendarModal() {
+  closeModal('modalEventoCalendario');
+}
+
+function selectEventCategory(category) {
+  document.getElementById('calendarEventCategory').value = category;
+  document.querySelectorAll('.event-category-btn-selector').forEach(btn => {
+    const btnCat = btn.dataset.category;
+    btn.classList.toggle('selected', btnCat === category);
+  });
+}
+
+function selectEventColor(color) {
+  document.getElementById('calendarEventColor').value = color;
+  document.querySelectorAll('.event-color-dot-selector').forEach(dot => {
+    const dotColor = dot.dataset.color;
+    dot.classList.toggle('selected', dotColor === color);
+  });
+}
+
+// Save event (Create / Edit)
+function handleCalendarFormSubmit(ev) {
+  ev.preventDefault();
+  
+  const idStr = document.getElementById('calendarEventId').value;
+  const date = document.getElementById('calendarEventDate').value;
+  const title = document.getElementById('calendarEventTitle').value.trim();
+  const desc = document.getElementById('calendarEventDesc').value.trim();
+  const time = document.getElementById('calendarEventTime').value;
+  const category = document.getElementById('calendarEventCategory').value;
+  const color = document.getElementById('calendarEventColor').value;
+  
+  if (!title || !date) {
+    alert("Título e data são obrigatórios.");
+    return;
+  }
+  
+  const user = getCurrentUser();
+  const events = getEvents();
+  
+  if (idStr) {
+    const id = parseInt(idStr, 10);
+    const index = events.findIndex(e => e.id === id);
+    if (index !== -1) {
+      const event = events[index];
+      if (event.owner === 'admin' && (!user || user.role !== 'admin')) {
+        alert("Permissão negada.");
+        return;
+      }
+      events[index] = {
+        ...event,
+        title,
+        desc,
+        date,
+        time,
+        category,
+        color
+      };
+    }
+  } else {
+    // Se o admin criar e não for lembrete pessoal, owner = 'admin'
+    // Se o aluno criar, owner = username
+    const isPersonal = document.getElementById('calendarModalTitle').textContent.includes('Pessoal');
+    const owner = (user && user.role === 'admin' && !isPersonal) ? 'admin' : (user ? user.username : 'admin');
+    
+    const newEvent = {
+      id: Date.now(),
+      title,
+      desc,
+      date,
+      time,
+      category,
+      color,
+      owner
+    };
+    events.push(newEvent);
+  }
+  
+  saveEvents(events);
+  closeCalendarModal();
+  
+  if (user && user.role === 'admin') {
+    renderCalendar('adminCalendarGrid', true);
+  } else {
+    renderCalendar('studentCalendarGrid', false);
+    renderUpcomingEventsWidget();
+  }
+  renderLandingCalendar();
+}
+
+// Delete Event
+function deleteCalendarEventFromModal() {
+  const idStr = document.getElementById('calendarEventId').value;
+  if (!idStr) return;
+  
+  if (!confirm("Tem certeza que deseja excluir este compromisso/evento?")) return;
+  
+  const id = parseInt(idStr, 10);
+  const events = getEvents();
+  const event = events.find(e => e.id === id);
+  if (!event) return;
+  
+  const user = getCurrentUser();
+  if (event.owner === 'admin' && (!user || user.role !== 'admin')) {
+    alert("Permissão negada.");
+    return;
+  }
+  
+  const updatedEvents = events.filter(e => e.id !== id);
+  saveEvents(updatedEvents);
+  closeCalendarModal();
+  
+  if (user && user.role === 'admin') {
+    renderCalendar('adminCalendarGrid', true);
+  } else {
+    renderCalendar('studentCalendarGrid', false);
+    renderUpcomingEventsWidget();
+  }
+  renderLandingCalendar();
+}
+
+// Show read-only details modal
+function showEventDetails(event) {
+  alert(`📅 EVENTO ACADÊMICO\n-------------------------\nTítulo: ${event.title}\nData: ${event.date.split('-').reverse().join('/')} ${event.time ? 'às ' + event.time : ''}\nCategoria: ${event.category}\nDescrição: ${event.desc || 'Sem descrição.'}`);
+}
+
+// Month Navigation functions
+function navigateCalendarMonth(dir) {
+  currentCalendarDate.setMonth(currentCalendarDate.getMonth() + dir);
+  renderCalendar('adminCalendarGrid', true);
+}
+
+function navigateStudentCalendarMonth(dir) {
+  currentCalendarDate.setMonth(currentCalendarDate.getMonth() + dir);
+  renderCalendar('studentCalendarGrid', false);
+}
+
+function navigateLandingCalendarMonth(dir) {
+  landingCalendarDate.setMonth(landingCalendarDate.getMonth() + dir);
+  renderLandingCalendar();
+}
+
+// Filter inputs handlers
+function handleCalendarSearchInput() {
+  renderCalendar('adminCalendarGrid', true);
+}
+
+function handleCalendarCategoryFilterChange() {
+  renderCalendar('adminCalendarGrid', true);
+}
+
+function handleStudentCalendarSearch() {
+  renderCalendar('studentCalendarGrid', false);
+}
+
+function handleStudentCalendarFilter() {
+  renderCalendar('studentCalendarGrid', false);
+}
+
+// Render Calendar Grid
+function renderCalendar(containerId, isEditable = false) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+
+  const monthNames = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+  
+  const titleId = isEditable ? 'adminCalendarMonthTitle' : 'studentCalendarMonthTitle';
+  const titleEl = document.getElementById(titleId);
+  if (titleEl) {
+    titleEl.textContent = `${monthNames[month]} ${year}`;
+  }
+
+  container.innerHTML = '';
+
+  const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  weekdays.forEach(day => {
+    const label = document.createElement('div');
+    label.className = 'calendar-weekday-label';
+    label.textContent = day;
+    container.appendChild(label);
+  });
+
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const prevMonthTotalDays = new Date(year, month, 0).getDate();
+  const totalCells = 42; 
+
+  const events = getEvents();
+  const user = getCurrentUser();
+
+  let filteredEvents = events.filter(e => {
+    if (e.owner !== 'admin' && (!user || e.owner !== user.username)) {
+      return false;
+    }
+    
+    if (isEditable) {
+      const catFilter = document.getElementById('adminCalendarCategoryFilter')?.value;
+      if (catFilter && e.category !== catFilter) return false;
+      
+      const searchVal = normalizeText(document.getElementById('adminCalendarSearch')?.value ?? '');
+      if (searchVal) {
+        const textToSearch = normalizeText(`${e.title} ${e.desc || ''}`);
+        if (!textToSearch.includes(searchVal)) return false;
+      }
+    } else {
+      const catFilter = document.getElementById('studentCalendarCategoryFilter')?.value;
+      if (catFilter && e.category !== catFilter) return false;
+      
+      const searchVal = normalizeText(document.getElementById('studentCalendarSearch')?.value ?? '');
+      if (searchVal) {
+        const textToSearch = normalizeText(`${e.title} ${e.desc || ''}`);
+        if (!textToSearch.includes(searchVal)) return false;
+      }
+    }
+    return true;
+  });
+
+  const formatDateStr = (y, m, d) => {
+    return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  };
+
+  const today = new Date();
+  const todayStr = formatDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+
+  for (let i = 0; i < totalCells; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'calendar-date-cell';
+
+    let cellDateStr = '';
+    let dayNum = 0;
+
+    if (i < firstDayIndex) {
+      dayNum = prevMonthTotalDays - firstDayIndex + i + 1;
+      const prevMonth = month === 0 ? 11 : month - 1;
+      const prevYear = month === 0 ? year - 1 : year;
+      cellDateStr = formatDateStr(prevYear, prevMonth, dayNum);
+      cell.classList.add('other-month');
+    } else if (i >= firstDayIndex + totalDays) {
+      dayNum = i - firstDayIndex - totalDays + 1;
+      const nextMonth = month === 11 ? 0 : month + 1;
+      const nextYear = month === 11 ? year + 1 : year;
+      cellDateStr = formatDateStr(nextYear, nextMonth, dayNum);
+      cell.classList.add('other-month');
+    } else {
+      dayNum = i - firstDayIndex + 1;
+      cellDateStr = formatDateStr(year, month, dayNum);
+      if (cellDateStr === todayStr) {
+        cell.classList.add('today-cell');
+      }
+    }
+
+    cell.dataset.date = cellDateStr;
+
+    const numberBadge = document.createElement('span');
+    numberBadge.className = 'calendar-day-number-badge';
+    numberBadge.textContent = dayNum;
+    cell.appendChild(numberBadge);
+
+    const eventsContainer = document.createElement('div');
+    eventsContainer.className = 'calendar-cell-events-container';
+    cell.appendChild(eventsContainer);
+
+    const cellEvents = filteredEvents.filter(e => e.date === cellDateStr);
+    
+    cellEvents.forEach(event => {
+      const pill = document.createElement('div');
+      pill.className = 'calendar-event-pill';
+      if (event.owner !== 'admin') {
+        pill.classList.add('personal-event');
+      }
+      pill.style.backgroundColor = event.color || '#001a4d';
+      pill.textContent = `${event.time ? event.time + ' ' : ''}${event.title}`;
+      pill.title = `${event.title}\nCategoria: ${event.category}\n${event.desc || ''}`;
+      
+      if (isEditable) {
+        pill.draggable = true;
+        pill.dataset.eventId = event.id;
+        pill.addEventListener('dragstart', (e) => {
+          e.stopPropagation();
+          e.dataTransfer.setData("text/plain", `move-event:${event.id}`);
+          pill.classList.add('dragging');
+        });
+        pill.addEventListener('dragend', () => {
+          pill.classList.remove('dragging');
+        });
+        pill.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openCalendarModalForEdit(event.id);
+        });
+      } else {
+        pill.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (event.owner !== 'admin') {
+            openCalendarModalForEdit(event.id);
+          } else {
+            showEventDetails(event);
+          }
+        });
+      }
+      
+      eventsContainer.appendChild(pill);
+    });
+
+    if (isEditable) {
+      cell.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        cell.classList.add('drag-over');
+      });
+      cell.addEventListener('dragleave', () => {
+        cell.classList.remove('drag-over');
+      });
+      cell.addEventListener('drop', (e) => {
+        e.preventDefault();
+        cell.classList.remove('drag-over');
+        const data = e.dataTransfer.getData("text/plain");
+        if (!data) return;
+
+        const targetDate = cell.dataset.date;
+
+        if (data.startsWith("palette-category:")) {
+          const category = data.split(":")[1];
+          openCalendarModalForCreate(targetDate, category, false);
+        } else if (data.startsWith("move-event:")) {
+          const eventId = parseInt(data.split(":")[1], 10);
+          rescheduleEvent(eventId, targetDate);
+        }
+      });
+      
+      cell.style.cursor = 'pointer';
+      cell.addEventListener('dblclick', () => {
+        openCalendarModalForCreate(cellDateStr, 'Acadêmico', false);
+      });
+    } else {
+      cell.style.cursor = 'pointer';
+      cell.addEventListener('dblclick', () => {
+        openCalendarModalForCreate(cellDateStr, 'Acadêmico', true);
+      });
+    }
+
+    container.appendChild(cell);
+  }
+}
+
+// Render Upcoming Widget
+function renderUpcomingEventsWidget() {
+  const container = document.getElementById('studentUpcomingEventsList');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  const events = getEvents();
+  const user = getCurrentUser();
+  if (!user) return;
+  
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  
+  const sevenDaysLater = new Date();
+  sevenDaysLater.setDate(today.getDate() + 7);
+  sevenDaysLater.setHours(23,59,59,999);
+  
+  const formatCompareDate = (dateStr) => {
+    const parts = dateStr.split('-');
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  };
+  
+  let upcoming = events.filter(e => {
+    if (e.owner !== 'admin' && e.owner !== user.username) return false;
+    
+    const eventDate = formatCompareDate(e.date);
+    return eventDate >= today && eventDate <= sevenDaysLater;
+  });
+  
+  upcoming.sort((a, b) => a.date.localeCompare(b.date));
+  
+  if (upcoming.length === 0) {
+    container.innerHTML = `<div class="upcoming-empty-state-message">Nenhum compromisso nos próximos 7 dias.</div>`;
+    return;
+  }
+  
+  upcoming.forEach(e => {
+    const card = document.createElement('div');
+    card.className = 'upcoming-event-item-card';
+    card.style.borderLeftColor = e.color || '#94a3b8';
+    
+    const dateObj = formatCompareDate(e.date);
+    const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const formattedDate = `${dateObj.getDate()} de ${months[dateObj.getMonth()]}`;
+    
+    card.innerHTML = `
+      <div class="upcoming-event-item-meta">
+        <span>${e.category}${e.owner !== 'admin' ? ' (Pessoal 👤)' : ''}</span>
+        <span>${formattedDate}</span>
+      </div>
+      <h5 class="upcoming-event-item-title">${e.time ? e.time + ' - ' : ''}${e.title}</h5>
+      ${e.desc ? `<p class="upcoming-event-item-desc">${e.desc}</p>` : ''}
+    `;
+    
+    card.addEventListener('click', () => {
+      openCalendarModalForEdit(e.id);
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Reset to defaults
+function resetCalendarToDefault() {
+  if (!confirm("Restaurar o calendário para os eventos acadêmicos padrão? Isso apagará todas as modificações dos administradores, mas manterá lembretes pessoais de alunos.")) return;
+  
+  const events = getEvents();
+  const studentEvents = events.filter(e => e.owner !== 'admin');
+  
+  const defaultEvents = [
+    { id: 1, title: 'Início do Período Letivo', desc: 'Início das aulas do 1º semestre de 2026 para todos os cursos.', date: '2026-03-10', category: 'Acadêmico', color: '#001a4d', owner: 'admin' },
+    { id: 2, title: 'Feriado — Tiradentes', desc: 'Sem atividades letivas.', date: '2026-04-21', category: 'Feriado', color: '#d67a00', owner: 'admin' },
+    { id: 3, title: 'Semana Acadêmica', desc: 'Palestras, workshops e minicursos abertos a toda a comunidade universitária.', date: '2026-05-05', category: 'Evento', color: '#a51c30', owner: 'admin' },
+    { id: 4, title: 'Período de Provas Parciais', desc: 'Avaliações parciais de todas as disciplinas — de 02 a 13 de junho.', date: '2026-06-02', category: 'Acadêmico', color: '#001a4d', owner: 'admin' },
+    { id: 5, title: 'Recesso — Julho', desc: 'Recesso escolar de 14 a 25 de julho. Retorno em 28 de julho.', date: '2026-07-14', category: 'Recesso', color: '#8764b8', owner: 'admin' },
+    { id: 6, title: 'Provas Finais', desc: 'Período de provas finais e exames — de 25 de novembro a 05 de dezembro.', date: '2026-11-25', category: 'Acadêmico', color: '#001a4d', owner: 'admin' }
+  ];
+  
+  const merged = [...studentEvents, ...defaultEvents];
+  saveEvents(merged);
+  
+  const user = getCurrentUser();
+  if (user && user.role === 'admin') {
+    renderCalendar('adminCalendarGrid', true);
+  } else {
+    renderCalendar('studentCalendarGrid', false);
+    renderUpcomingEventsWidget();
+  }
+  renderLandingCalendar();
+}
+
+// Export to iCal format (.ics)
+function exportCalendarToIcal() {
+  const events = getEvents().filter(e => e.owner === 'admin'); 
+  
+  if (events.length === 0) {
+    alert("Nenhum evento oficial para exportar.");
+    return;
+  }
+  
+  let icsLines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//UniFicticia//Calendario Academico//PT",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH"
+  ];
+  
+  const formatDateToICS = (dateStr) => {
+    return dateStr.replace(/-/g, '');
+  };
+  
+  events.forEach(e => {
+    const dateICS = formatDateToICS(e.date);
+    icsLines.push("BEGIN:VEVENT");
+    icsLines.push(`UID:event-${e.id}@unificticia.edu.br`);
+    icsLines.push(`DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`);
+    icsLines.push(`DTSTART;VALUE=DATE:${dateICS}`);
+    
+    const parts = e.date.split('-');
+    const nextDay = new Date(parts[0], parts[1] - 1, parseInt(parts[2], 10) + 1);
+    const nextDayStr = `${nextDay.getFullYear()}${String(nextDay.getMonth() + 1).padStart(2, '0')}${String(nextDay.getDate()).padStart(2, '0')}`;
+    
+    icsLines.push(`DTEND;VALUE=DATE:${nextDayStr}`);
+    icsLines.push(`SUMMARY:${e.title}`);
+    icsLines.push(`DESCRIPTION:${e.desc || ''}`);
+    icsLines.push(`CATEGORIES:${e.category}`);
+    icsLines.push("END:VEVENT");
+  });
+  
+  icsLines.push("END:VCALENDAR");
+  
+  const icsContent = icsLines.join("\r\n");
+  const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "calendario_academico_unificticia.ics";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Landing Page dynamic rendering
+function renderLandingCalendar() {
+  const gridContainer = document.getElementById('landingCalendarGrid');
+  const listContainer = document.getElementById('landingCalendarList');
+  if (!gridContainer || !listContainer) return;
+  
+  const monthNames = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+  
+  const year = landingCalendarDate.getFullYear();
+  const month = landingCalendarDate.getMonth();
+  
+  const monthTitle = document.getElementById('landingCalendarMonthTitle');
+  if (monthTitle) {
+    monthTitle.textContent = `${monthNames[month]} ${year}`;
+  }
+  
+  gridContainer.innerHTML = '';
+  
+  const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  weekdays.forEach(day => {
+    const label = document.createElement('div');
+    label.className = 'calendar-weekday-label';
+    label.textContent = day;
+    gridContainer.appendChild(label);
+  });
+  
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const prevMonthTotalDays = new Date(year, month, 0).getDate();
+  const totalCells = 42;
+  
+  const events = getEvents().filter(e => e.owner === 'admin'); 
+  
+  const formatDateStr = (y, m, d) => {
+    return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  };
+  
+  const today = new Date();
+  const todayStr = formatDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+  
+  for (let i = 0; i < totalCells; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'calendar-date-cell';
+    
+    let cellDateStr = '';
+    let dayNum = 0;
+    
+    if (i < firstDayIndex) {
+      dayNum = prevMonthTotalDays - firstDayIndex + i + 1;
+      const prevMonth = month === 0 ? 11 : month - 1;
+      const prevYear = month === 0 ? year - 1 : year;
+      cellDateStr = formatDateStr(prevYear, prevMonth, dayNum);
+      cell.classList.add('other-month');
+    } else if (i >= firstDayIndex + totalDays) {
+      dayNum = i - firstDayIndex - totalDays + 1;
+      const nextMonth = month === 11 ? 0 : month + 1;
+      const nextYear = month === 11 ? year + 1 : year;
+      cellDateStr = formatDateStr(nextYear, nextMonth, dayNum);
+      cell.classList.add('other-month');
+    } else {
+      dayNum = i - firstDayIndex + 1;
+      cellDateStr = formatDateStr(year, month, dayNum);
+      if (cellDateStr === todayStr) {
+        cell.classList.add('today-cell');
+      }
+    }
+    
+    const numberBadge = document.createElement('span');
+    numberBadge.className = 'calendar-day-number-badge';
+    numberBadge.textContent = dayNum;
+    cell.appendChild(numberBadge);
+    
+    const eventsContainer = document.createElement('div');
+    eventsContainer.className = 'calendar-cell-events-container';
+    cell.appendChild(eventsContainer);
+    
+    const cellEvents = events.filter(e => e.date === cellDateStr);
+    cellEvents.forEach(event => {
+      const pill = document.createElement('div');
+      pill.className = 'calendar-event-pill';
+      pill.style.backgroundColor = event.color || '#001a4d';
+      pill.textContent = event.title;
+      pill.title = `${event.title}\nCategoria: ${event.category}\n${event.desc || ''}`;
+      
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showEventDetails(event);
+      });
+      eventsContainer.appendChild(pill);
+    });
+    
+    gridContainer.appendChild(cell);
+  }
+  
+  listContainer.innerHTML = '';
+  const sortedEvents = events.slice().sort((a, b) => a.date.localeCompare(b.date));
+  
+  if (sortedEvents.length === 0) {
+    listContainer.innerHTML = `<div class="upcoming-empty-state-message">Nenhum evento acadêmico cadastrado.</div>`;
+    return;
+  }
+  
+  sortedEvents.forEach(e => {
+    const parts = e.date.split('-');
+    const day = parts[2];
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const monthsShort = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const mesText = monthsShort[monthIndex];
+    
+    const tagClass = e.category === 'Acadêmico' ? 'tag-academico' : e.category === 'Feriado' ? 'tag-feriado' : 'tag-evento';
+    
+    const item = document.createElement('div');
+    item.className = 'calendario-item';
+    item.innerHTML = `
+      <div class="calendario-data" style="background-color: ${e.color || '#001a4d'};">
+        <span class="calendario-dia">${day}</span>
+        <span class="calendario-mes">${mesText}</span>
+      </div>
+      <div class="calendario-info">
+        <h3 class="calendario-titulo">${e.title}</h3>
+        <p class="calendario-desc">${e.desc || ''}</p>
+      </div>
+      <span class="calendario-tag ${tagClass}">${e.category}</span>
+    `;
+    listContainer.appendChild(item);
+  });
+}
+
+function setLandingCalendarView(view) {
+  landingCalendarView = view;
+  const btnGrid = document.getElementById('btnLandingCalendarGrid');
+  const btnList = document.getElementById('btnLandingCalendarList');
+  const gridArea = document.getElementById('landingCalendarGridArea');
+  const controls = document.getElementById('landingCalendarControls');
+  const listArea = document.getElementById('landingCalendarList');
+  
+  if (view === 'grid') {
+    btnGrid.classList.add('active');
+    btnList.classList.remove('active');
+    gridArea.classList.remove('hidden');
+    controls.classList.remove('hidden');
+    listArea.classList.add('hidden');
+  } else {
+    btnList.classList.add('active');
+    btnGrid.classList.remove('active');
+    gridArea.classList.add('hidden');
+    controls.classList.add('hidden');
+    listArea.classList.remove('hidden');
+  }
+}
+
 
